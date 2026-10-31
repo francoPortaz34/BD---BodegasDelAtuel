@@ -1,0 +1,41 @@
+# Entorno de desarrollo de Bodegas del Atuel: PostgreSQL 16.
+#
+# Base DESECHABLE para desarrollo y pruebas. Las migraciones NO se ejecutan
+# automáticamente: db/ se monta en /db en modo solo lectura (no en
+# /docker-entrypoint-initdb.d) y se aplican a mano con psql.
+#
+# Uso:
+#   cp .env.example .env        (y completar POSTGRES_PASSWORD)
+#   docker compose up -d
+#   docker compose ps           (esperar estado "healthy")
+
+name: bodegas-atuel
+
+services:
+  db:
+    image: postgres:16
+    container_name: bodegas_atuel_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bodegas_atuel}
+      POSTGRES_USER: ${POSTGRES_USER:-bodegas_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definir POSTGRES_PASSWORD en .env (ver .env.example)}
+      TZ: America/Argentina/Mendoza
+      PGTZ: America/Argentina/Mendoza
+    ports:
+      # Solo en localhost y en un puerto alto para no chocar con un
+      # PostgreSQL instalado localmente (5432).
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/db:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  pgdata:
+    name: bodegas_atuel_pgdata

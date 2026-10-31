@@ -1,0 +1,35 @@
+# Variables de entorno y secretos locales
+.env
+.env.*
+!.env.example
+
+# Volcados y backups de base de datos
+*.dump
+*.backup
+*.bak
+backups/
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales de Office / draw.io
+~$*
+*.drawio.bkp
+.$*.drawio
