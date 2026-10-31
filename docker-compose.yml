@@ -3,6 +3,8 @@
 # Base DESECHABLE para desarrollo y pruebas. Las migraciones NO se ejecutan
 # automáticamente: db/ se monta en /db en modo solo lectura (no en
 # /docker-entrypoint-initdb.d) y se aplican a mano con psql.
+# tests/ se monta en /tests (solo lectura) para correr las pruebas SQL:
+#   docker exec bodegas_atuel_db sh /tests/run_etapa2.sh
 #
 # Uso:
 #   cp .env.example .env        (y completar POSTGRES_PASSWORD)
@@ -29,6 +31,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db:/db:ro
+      - ./tests:/tests:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
