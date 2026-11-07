@@ -334,6 +334,20 @@ ALTER TABLE empleado
 ALTER TABLE analisis_calidad
     ADD CONSTRAINT ck_analisis_ph CHECK (ph BETWEEN 0 AND 14);
 
+-- Valores razonables (coinciden con el diccionario de datos)
+ALTER TABLE analisis_calidad
+    ADD CONSTRAINT ck_analisis_brix   CHECK (grado_brix BETWEEN 0 AND 40),
+    ADD CONSTRAINT ck_analisis_acidez CHECK (acidez_total >= 0);
+ALTER TABLE parcela
+    ADD CONSTRAINT ck_parcela_numero CHECK (num_parcela > 0),
+    ADD CONSTRAINT ck_parcela_anio   CHECK (anio_plantacion >= 1900);
+ALTER TABLE lote_de_uva
+    ADD CONSTRAINT ck_lote_campania CHECK (campania >= 1990);
+ALTER TABLE vino_cepa
+    ADD CONSTRAINT ck_vino_cepa_porcentaje CHECK (porcentaje_corte > 0);
+ALTER TABLE maridaje
+    ADD CONSTRAINT ck_maridaje_temperatura CHECK (temperatura_sugerida BETWEEN 0 AND 25);
+
 -- Nota RN-09: "el stock nunca es negativo" ya lo garantiza el dominio
 -- dom_cantidad (CHECK VALUE >= 0) de stock_sala.cantidad y
 -- stock_deposito.cantidad. RN-06 (rango del descuento) lo garantiza el

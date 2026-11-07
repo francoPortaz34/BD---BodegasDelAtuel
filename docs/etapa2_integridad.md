@@ -93,7 +93,7 @@ Ya existían en 001: CUIT de bodega, transportista y empleado; códigos de vino,
 transporte, lote, permiso; número de comprobante y de solicitud; nombre de cepa, maridaje,
 tipo de cliente; DNI de encargado; encargado de localidad; habilitación del distribuidor.
 
-### 3.4 CHECK (16)
+### 3.4 CHECK (23)
 | Restricción | Qué controla | Regla |
 |---|---|---|
 | `ck_vino_precio_positivo` | precio_venta > 0 | RN-01 |
@@ -112,6 +112,13 @@ tipo de cliente; DNI de encargado; encargado de localidad; habilitación del dis
 | `ck_comprobante_importes` | **entre columnas**: descuento <= subtotal y total = subtotal − descuento | RN-08 |
 | `ck_empleado_salario` | salario > 0 | |
 | `ck_analisis_ph` | pH entre 0 y 14 | |
+| `ck_analisis_brix` | grado Brix entre 0 y 40 | |
+| `ck_analisis_acidez` | acidez total >= 0 | |
+| `ck_parcela_numero` | número de parcela > 0 | |
+| `ck_parcela_anio` | año de plantación >= 1900 | |
+| `ck_lote_campania` | campaña >= 1990 | |
+| `ck_vino_cepa_porcentaje` | porcentaje de corte > 0 | RN-15 |
+| `ck_maridaje_temperatura` | temperatura de servicio entre 0 y 25 °C | |
 
 "El stock nunca es negativo" (RN-09) lo garantiza el dominio `dom_cantidad` (CHECK >= 0)
 de `stock_sala.cantidad` y `stock_deposito.cantidad`. El rango del descuento (RN-06) lo

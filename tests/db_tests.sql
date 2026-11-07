@@ -668,6 +668,27 @@ SELECT pg_temp.debe_fallar('CHECK',
 SELECT pg_temp.debe_fallar('CHECK',
     $$INSERT INTO analisis_calidad (id_lote_uva, fecha, grado_brix, ph, acidez_total)
       VALUES (900001, '2024-03-12', 24.5, 15, 6)$$, '23514', 'ck_analisis_ph');
+SELECT pg_temp.debe_fallar('CHECK',
+    $$INSERT INTO analisis_calidad (id_lote_uva, fecha, grado_brix, ph, acidez_total)
+      VALUES (900001, '2024-03-12', 45, 3.5, 6)$$, '23514', 'ck_analisis_brix');
+SELECT pg_temp.debe_fallar('CHECK',
+    $$INSERT INTO analisis_calidad (id_lote_uva, fecha, grado_brix, ph, acidez_total)
+      VALUES (900001, '2024-03-12', 24.5, 3.5, -1)$$, '23514', 'ck_analisis_acidez');
+SELECT pg_temp.debe_fallar('CHECK',
+    $$INSERT INTO parcela (id_finca, num_parcela, superficie, anio_plantacion, id_cepa)
+      VALUES (900001, 0, 5, 2010, 900001)$$, '23514', 'ck_parcela_numero');
+SELECT pg_temp.debe_fallar('CHECK',
+    $$INSERT INTO parcela (id_finca, num_parcela, superficie, anio_plantacion, id_cepa)
+      VALUES (900001, 50, 5, 1850, 900001)$$, '23514', 'ck_parcela_anio');
+SELECT pg_temp.debe_fallar('CHECK',
+    $$INSERT INTO lote_de_uva (num_lote, id_finca, num_parcela, campania, fecha_cosecha,
+                               kilos_cosechados, id_bodega_entrega)
+      VALUES ('TEST-L-1980', 900001, 1, 1980, '1980-03-10', 5000, 900001)$$, '23514', 'ck_lote_campania');
+SELECT pg_temp.debe_fallar('CHECK',
+    $$UPDATE vino_cepa SET porcentaje_corte = 0 WHERE id_vino = 900002$$, '23514', 'ck_vino_cepa_porcentaje');
+SELECT pg_temp.debe_fallar('CHECK',
+    $$INSERT INTO maridaje (nombre, temperatura_sugerida) VALUES ('TEST Helado', 30)$$,
+    '23514', 'ck_maridaje_temperatura');
 SELECT pg_temp.debe_fallar('DOMAIN',
     $$UPDATE bodega SET cuit = '30-1234567' WHERE id_bodega = 900001$$, '23514', 'dom_cuit');
 
