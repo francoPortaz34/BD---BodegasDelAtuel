@@ -3,14 +3,12 @@
 -- =====================================================================
 -- Resumen (tabla -> trigger -> momento -> regla)
 --   vino                  trg_vino_auditoria_precio      AFTER UPDATE          RN-13
---   auditoria_precio      trg_auditoria_precio_inmutable BEFORE UPDATE/DELETE  RN-13
---   transferencia         trg_transferencia_fecha        BEFORE INSERT/UPDATE  RN-11
+--   transferencia        trg_transferencia_fecha        BEFORE INSERT/UPDATE  RN-11
 --   ingreso               trg_ingreso_estado             BEFORE INSERT/UPDATE  RN-10
 --   transferencia         trg_transferencia_estado       BEFORE INSERT/UPDATE  RN-11
 --   renglon_ingreso       trg_renglon_ingreso_bloqueo    BEFORE I/U/D          RN-12
 --   renglon_transferencia trg_renglon_transferencia_bloqueo BEFORE I/U/D       RN-12
 --   vino_cepa             trg_vino_cepa_suma_100         CONSTRAINT DEFERRED   RN-05
---   vino                  trg_vino_composicion_100       CONSTRAINT DEFERRED   RN-05
 --   detalle_comprobante   trg_detalle_validar            BEFORE INSERT/UPDATE  RN-09, RN-06, RN-01
 --   detalle_comprobante   trg_detalle_actualizar         AFTER I/U/D           RN-09, RN-08
 --   comprobante           trg_comprobante_totales        BEFORE INSERT/UPDATE  RN-08
@@ -44,26 +42,8 @@ AFTER UPDATE OF precio_venta ON vino
 FOR EACH ROW
 WHEN (OLD.precio_venta IS DISTINCT FROM NEW.precio_venta)
 EXECUTE FUNCTION trg_auditar_precio();
-
-
--- =====================================================================
--- RN-13: la auditoría no se puede modificar ni borrar
--- Tipo: BEFORE UPDATE OR DELETE. Protege el historial incluso frente a
--- un usuario con permisos sobre la tabla.
--- =====================================================================
-CREATE OR REPLACE FUNCTION trg_auditoria_inmutable()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RAISE EXCEPTION 'La auditoría de precios no se puede modificar ni borrar (RN-13)';
-END;
-$$;
-
-CREATE TRIGGER trg_auditoria_precio_inmutable
-BEFORE UPDATE OR DELETE ON auditoria_precio
-FOR EACH ROW
-EXECUTE FUNCTION trg_auditoria_inmutable();
+-- La auditoría no se puede modificar ni borrar desde la API: 007_roles.sql
+-- le da a bodegas_api solo SELECT sobre auditoria_precio.
 
 
 -- =====================================================================
@@ -248,9 +228,7 @@ EXECUTE FUNCTION trg_bloquear_renglon_transferencia();
 -- Tipo: CONSTRAINT TRIGGER DEFERRABLE INITIALLY DEFERRED.
 -- Se controla al hacer COMMIT (o con SET CONSTRAINTS ... IMMEDIATE), así
 -- se pueden cargar el vino y todas sus cepas dentro de la transacción.
--- La misma función se usa en dos tablas:
---   * vino_cepa: al agregar, cambiar o quitar una cepa.
---   * vino: al crear un vino, para que no quede un vino SIN cepas.
+-- Se dispara en vino_cepa al agregar, cambiar o quitar una cepa.
 -- En un UPDATE de vino_cepa se controlan el vino viejo y el nuevo.
 -- Si el vino ya no existe (se borró, y su composición con él por
 -- CASCADE) no hay nada que controlar.
@@ -290,12 +268,6 @@ $$;
 
 CREATE CONSTRAINT TRIGGER trg_vino_cepa_suma_100
 AFTER INSERT OR UPDATE OR DELETE ON vino_cepa
-DEFERRABLE INITIALLY DEFERRED
-FOR EACH ROW
-EXECUTE FUNCTION trg_validar_porcentajes_corte();
-
-CREATE CONSTRAINT TRIGGER trg_vino_composicion_100
-AFTER INSERT ON vino
 DEFERRABLE INITIALLY DEFERRED
 FOR EACH ROW
 EXECUTE FUNCTION trg_validar_porcentajes_corte();

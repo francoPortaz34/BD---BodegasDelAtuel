@@ -106,7 +106,7 @@ precio anterior y la auditoría registra el cambio posterior (RN-01, RN-13).
 | Ventas (RN-01, RN-06, RN-08, RN-09) | Se inserta el `comprobante` **sin fecha ni importes** (DEFAULT `CURRENT_DATE` y 0) y después sus renglones con precio, descuento y subtotal en 0, igual que en `tests/db_tests.sql`. `trg_detalle_validar` reemplaza esos valores y controla el stock con `FOR UPDATE`. `trg_detalle_actualizar` descuenta el stock y recalcula el comprobante a través de `trg_comprobante_totales`. |
 | Auditoría (RN-13) | **No se inserta nada en `auditoria_precio`.** Las 40 filas las genera el trigger al actualizar `vino.precio_venta`. |
 | Stock (RN-09) | **No se insertan filas en `stock_deposito` ni en `stock_sala`.** Las crean y actualizan solo los procedimientos y triggers. |
-| Triggers activos | Antes de escribir se exige que existan los 12 triggers de 005, que su `tgenabled` sea `O` o `A` y que la sesión tenga `session_replication_role = 'origin'`. Con `replica`, los triggers `O` no se dispararían aunque figuren habilitados. El script no cambia ninguno de estos valores. |
+| Triggers activos | Antes de escribir se exige que existan los 10 triggers de 005, que su `tgenabled` sea `O` o `A` y que la sesión tenga `session_replication_role = 'origin'`. Con `replica`, los triggers `O` no se dispararían aunque figuren habilitados. El script no cambia ninguno de estos valores. |
 | `search_path` | Las funciones de 003 y varias de 005 nombran las tablas sin esquema, así que la sesión fija `search_path = bodegas`. |
 
 ### 3.1 Por qué el stock nunca se queda corto

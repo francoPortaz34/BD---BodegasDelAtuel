@@ -12,7 +12,7 @@ sobre PostgreSQL 16.15 (contenedor `postgres:16`).
 | 2 | `db/migrations/002_constraints.sql` | Corrección del ENUM, acciones referenciales, UNIQUE, CHECK, DEFAULT |
 | 3 | `db/migrations/003_funciones.sql` | Las 4 funciones de negocio |
 | 4 | `db/migrations/004_procedimientos.sql` | Los 2 procedimientos transaccionales |
-| 5 | `db/migrations/005_triggers.sql` | 12 triggers |
+| 5 | `db/migrations/005_triggers.sql` | 10 triggers |
 | 6 | `db/migrations/006_vistas.sql` | 2 vistas + 1 vista materializada |
 | 7 | `db/migrations/007_roles.sql` | Roles, dueño de los objetos y privilegios |
 | 8 | `tests/db_tests.sql` | Pruebas (todo en una transacción con ROLLBACK) |
@@ -176,11 +176,10 @@ Uso: `CALL sp_procesar_ingreso(15);` — `CALL sp_procesar_transferencia(42);`
 | Trigger | Tabla | Momento | Responsabilidad | Regla |
 |---|---|---|---|---|
 | `trg_vino_auditoria_precio` | vino | AFTER UPDATE OF precio_venta | Inserta precio anterior, nuevo, fecha/hora y usuario en `auditoria_precio` (solo si el precio cambió) | RN-13 |
-| `trg_auditoria_precio_inmutable` | auditoria_precio | BEFORE UPDATE/DELETE | Impide modificar o borrar la auditoría | RN-13 |
 | `trg_transferencia_fecha` | transferencia | BEFORE INSERT/UPDATE | INSERT: pone `CURRENT_DATE`. UPDATE: prohíbe cambiar la fecha | RN-11 |
 | `trg_ingreso_estado` / `trg_transferencia_estado` | ingreso / transferencia | BEFORE INSERT/UPDATE OF estado | Un documento nace `en_confeccion`; solo `en_confeccion → terminado → procesado`; a `procesado` solo se llega por el procedimiento | RN-10, RN-11 |
 | `trg_renglon_ingreso_bloqueo` / `trg_renglon_transferencia_bloqueo` | renglones | BEFORE INSERT/UPDATE/DELETE | Si la cabecera no está `en_confeccion`, no se agregan, modifican ni quitan renglones | RN-12 |
-| `trg_vino_cepa_suma_100` / `trg_vino_composicion_100` | vino_cepa / vino | CONSTRAINT TRIGGER DEFERRABLE INITIALLY DEFERRED | Al cerrar la transacción, la composición de cada vino suma 100 (y un vino no puede quedar sin cepas) | RN-05 |
+| `trg_vino_cepa_suma_100` | vino_cepa | CONSTRAINT TRIGGER DEFERRABLE INITIALLY DEFERRED | Al cerrar la transacción, la composición de cada vino suma 100 | RN-05 |
 | `trg_detalle_validar` | detalle_comprobante | BEFORE INSERT/UPDATE | Completa precio (el del vino), descuento (`fn_descuento_cliente`) y subtotal; bloquea la fila de stock con `FOR UPDATE` y rechaza si no alcanza | RN-09, RN-06, RN-01 |
 | `trg_detalle_actualizar` | detalle_comprobante | AFTER INSERT/UPDATE/DELETE | Descuenta (o devuelve) el stock de la sala y recalcula los importes del comprobante | RN-09, RN-08 |
 | `trg_comprobante_totales` | comprobante | BEFORE INSERT/UPDATE | Pisa subtotal, descuento y total con los calculados; impide cambiar sala o cliente si ya hay renglones | RN-08 |
@@ -252,7 +251,7 @@ Cada línea de salida empieza con `OK [RN-xx]`.
 | RN-02 Sala en una localidad; un encargado por localidad | `fk_sala_localidad` NOT NULL, `fk_localidad_encargado`, `uq_localidad_encargado` | 001, 002 | Sala sin localidad (23502), con localidad inexistente (23503), encargado repetido (23505) |
 | RN-03 Empleado en una sola sala | `fk_empleado_sala` NOT NULL | 001, 002 | Empleado sin sala (23502) y con sala inexistente (23503); alta válida |
 | RN-04 Una cepa por parcela; una cosecha por campaña | `fk_parcela_cepa`, `uq_lote_parcela_campania`, `ck_lote_campania_fecha` | 001, 002 | Segunda cosecha en la misma campaña (23505); otra campaña OK; cepa inexistente; campaña ≠ año |
-| RN-05 Corte suma 100 | `trg_vino_cepa_suma_100` y `trg_vino_composicion_100` (constraint triggers diferidos) | 005 | 60 % rechazado; vino sin cepas rechazado; 60 + 40 OK; quitar una cepa rechazado |
+| RN-05 Corte suma 100 | `trg_vino_cepa_suma_100` (constraint trigger diferido) | 005 | 60 % rechazado; 60 + 40 OK; quitar una cepa rechazado |
 | RN-06 Descuento por tipo de cliente | `fn_descuento_cliente` + `dom_porcentaje` + trigger de venta | 003, 005 | 10/20/30 %; cliente inexistente; descuento 120 rechazado; descuento aplicado al renglón |
 | RN-07 Permisos; vencimiento > emisión | Tabla `permiso_exportacion` + `ck_permiso_fechas` | 001, 002 | Dos permisos OK; vencimiento = emisión (23514); permiso a un no exportador (23503) |
 | RN-08 Total = suma de renglones; no se carga a mano | `fn_total_comprobante` + `trg_detalle_validar`, `trg_detalle_actualizar`, `trg_comprobante_totales` + `ck_comprobante_importes` | 002, 003, 005 | Importes manuales ignorados; totales al agregar, modificar y quitar renglones; cambio de sala bloqueado; CHECK sin trigger |
@@ -260,7 +259,7 @@ Cada línea de salida empieza con `OK [RN-xx]`.
 | RN-10 Estados del ingreso | ENUM `estado_movimiento` + `trg_ingreso_estado` + `sp_procesar_ingreso` | 001, 004, 005 | Alta en procesado; salto y retroceso de estados; procesar sin procedimiento; procesar en confección, dos veces, inexistente, sin renglones |
 | RN-11 Estados de la transferencia; fecha actual inmutable | `trg_transferencia_estado`, `trg_transferencia_fecha` + `sp_procesar_transferencia` | 004, 005 | Fecha forzada a hoy; cambio de fecha rechazado; stock insuficiente sin cambios a medias; vino sin fila en depósito; procesar sin procedimiento |
 | RN-12 Renglones bloqueados fuera de confección | `trg_renglon_ingreso_bloqueo`, `trg_renglon_transferencia_bloqueo` | 005 | INSERT/UPDATE/DELETE en documentos terminados o procesados rechazados; mover un renglón a un documento cerrado; en confección OK; borrado completo de un ingreso procesado |
-| RN-13 Auditoría de precios | `trg_vino_auditoria_precio` (AFTER UPDATE) + `auditoria_precio` + `trg_auditoria_precio_inmutable` + permisos | 001, 005, 007 | Cambio auditado con valores y usuario; sin auditoría si no cambia el precio; borrar/modificar auditoría rechazado; cambio hecho por la API auditado |
+| RN-13 Auditoría de precios | `trg_vino_auditoria_precio` (AFTER UPDATE) + `auditoria_precio` + permisos (la API solo puede leerla) | 001, 005, 007 | Cambio auditado con valores y usuario; sin auditoría si no cambia el precio; la API no puede borrar la auditoría (42501); cambio hecho por la API auditado |
 | RN-14 No borrar con movimientos | FK con ON DELETE RESTRICT | 002 | Borrar transportista, bodega y vino con movimientos (23503); transportista sin movimientos se borra |
 | RN-15 Valores positivos; graduación 5–20 | CHECK `ck_vino_graduacion`, `ck_lote_kilos`, `ck_*_superficie`, `ck_*_cantidad` | 002 | Graduación 4,99 y 20,01; kilos 0; superficies 0 y −1; cantidades 0 y negativas |
 

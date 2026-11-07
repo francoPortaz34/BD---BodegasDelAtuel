@@ -227,9 +227,9 @@ TABLAS_POR_FASE = {
 TODAS_LAS_TABLAS = tuple(t for ts in TABLAS_POR_FASE.values() for t in ts)
 
 TRIGGERS_REQUERIDOS = (
-    "trg_vino_auditoria_precio", "trg_auditoria_precio_inmutable", "trg_transferencia_fecha",
+    "trg_vino_auditoria_precio", "trg_transferencia_fecha",
     "trg_ingreso_estado", "trg_transferencia_estado", "trg_renglon_ingreso_bloqueo",
-    "trg_renglon_transferencia_bloqueo", "trg_vino_cepa_suma_100", "trg_vino_composicion_100",
+    "trg_renglon_transferencia_bloqueo", "trg_vino_cepa_suma_100",
     "trg_detalle_validar", "trg_detalle_actualizar", "trg_comprobante_totales",
 )
 

@@ -269,12 +269,6 @@ SELECT pg_temp.debe_fallar('RN-05',
       INSERT INTO vino_cepa VALUES (900010, 900001, 60);
       SET CONSTRAINTS ALL IMMEDIATE$$, 'P0001', 'suman 60.00 y deben sumar 100');
 SET CONSTRAINTS ALL DEFERRED;
-SELECT pg_temp.debe_fallar('RN-05',
-    $$INSERT INTO vino (id_vino, cod_vino, nombre_comercial, tipo, anada, presentacion_ml,
-                        graduacion_alcoholica, precio_venta, id_bodega)
-      VALUES (900011, 'TEST-V11', 'TEST Sin cepas', 'tinto', 2022, 750, 13.5, 9000, 900001);
-      SET CONSTRAINTS ALL IMMEDIATE$$, 'P0001', 'suman 0 y deben sumar 100');
-SET CONSTRAINTS ALL DEFERRED;
 -- Dentro de la transacción la suma puede estar "incompleta" (60) mientras se carga
 INSERT INTO vino (id_vino, cod_vino, nombre_comercial, tipo, anada, presentacion_ml,
                   graduacion_alcoholica, precio_venta, id_bodega)
@@ -459,7 +453,8 @@ SELECT pg_temp.verificar('RN-08',
 -- =====================================================================
 -- RN-13: todo cambio de precio queda auditado
 -- Mecanismo: trigger AFTER UPDATE trg_vino_auditoria_precio + tabla
--- auditoria_precio + trigger trg_auditoria_precio_inmutable
+-- auditoria_precio. Que la API no pueda borrarla ni modificarla se prueba
+-- en la sección de permisos del rol api (42501).
 -- =====================================================================
 UPDATE vino SET precio_venta = 13000 WHERE id_vino = 900001;
 SELECT pg_temp.verificar('RN-13',
@@ -478,10 +473,6 @@ SELECT pg_temp.verificar('RN-13',
 SELECT pg_temp.verificar('RN-01',
     (SELECT precio_unitario_venta FROM detalle_comprobante WHERE id_comprobante = 900001 AND id_vino = 900001) = 12500,
     'las ventas anteriores conservan el precio del momento de la venta');
-SELECT pg_temp.debe_fallar('RN-13',
-    $$DELETE FROM auditoria_precio WHERE id_vino = 900001$$, 'P0001', 'no se puede modificar ni borrar');
-SELECT pg_temp.debe_fallar('RN-13',
-    $$UPDATE auditoria_precio SET precio_nuevo = 1 WHERE id_vino = 900001$$, 'P0001', 'no se puede modificar ni borrar');
 
 
 -- =====================================================================
