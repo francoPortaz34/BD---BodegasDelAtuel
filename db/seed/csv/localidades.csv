@@ -1,0 +1,270 @@
+cod_postal,nombre,provincia,departamento
+5500,Ciudad Capital,Mendoza,Capital
+5632,Alvear Oeste,Mendoza,General Alvear
+5634,Bowen,Mendoza,General Alvear
+5636,Canalejas,Mendoza,General Alvear
+5621,Carmensa,Mendoza,General Alvear
+5620,Ciudad de General Alvear,Mendoza,General Alvear
+5621,Cochicó,Mendoza,General Alvear
+5603,Colonia Rusa,Mendoza,General Alvear
+5637,Corral de Lorca,Mendoza,General Alvear
+5620,El Desvio,Mendoza,General Alvear
+5609,Gaspar Campos,Mendoza,General Alvear
+5609,Goico,Mendoza,General Alvear
+5634,La Escandinava,Mendoza,General Alvear
+5632,La Marzolina,Mendoza,General Alvear
+5636,La Mora,Mendoza,General Alvear
+5621,Los Compartos,Mendoza,General Alvear
+5636,Los Huarpes,Mendoza,General Alvear
+6279,Media Luna,Mendoza,General Alvear
+5637,Ovejeria,Mendoza,General Alvear
+5637,Pampa del Tigre,Mendoza,General Alvear
+5501,Ciudad de Godoy Cruz,Mendoza,Godoy Cruz
+5519,Belgrano,Mendoza,Guaymallén
+5533,Bermejo,Mendoza,Guaymallén
+5523,Buena Nueva,Mendoza,Guaymallén
+5523,Capilla del Rosario,Mendoza,Guaymallén
+5521,Ciudad de Guaymallén,Mendoza,Guaymallén
+5525,Colonia Molina,Mendoza,Guaymallén
+5525,Colonia Segovia,Mendoza,Guaymallén
+5519,Dorrego,Mendoza,Guaymallén
+5533,El Sauce,Mendoza,Guaymallén
+5523,Jesús Nazareno,Mendoza,Guaymallén
+5525,Kilómetro 11,Mendoza,Guaymallén
+5525,Kilómetro 8,Mendoza,Guaymallén
+5527,La Primavera (G),Mendoza,Guaymallén
+5519,Las Cañas,Mendoza,Guaymallén
+5527,Los Corralitos,Mendoza,Guaymallén
+5519,Nueva Ciudad,Mendoza,Guaymallén
+5519,Pedro Molina,Mendoza,Guaymallén
+5527,Puente de Hierro,Mendoza,Guaymallén
+5525,Rodeo de la Cruz,Mendoza,Guaymallén
+5503,San Francisco del Monte,Mendoza,Guaymallén
+5519,San José (G),Mendoza,Guaymallén
+5582,Algarrobo Grande,Mendoza,Junín
+5582,Alto Verde (J),Mendoza,Junín
+5573,Ciudad de Junín,Mendoza,Junín
+5570,La Colonia (J),Mendoza,Junín
+5585,Los Barriales,Mendoza,Junín
+5585,Medrano (J),Mendoza,Junín
+5579,Mundo Nuevo (J),Mendoza,Junín
+5579,Phillips,Mendoza,Junín
+5585,Rodriguez Peña,Mendoza,Junín
+5590,Cadetes de Chile,Mendoza,La Paz
+5590,Ciudad de La Paz,Mendoza,La Paz
+5598,Desaguadero,Mendoza,La Paz
+5590,Las Horquetas,Mendoza,La Paz
+5590,Maquinista Levet,Mendoza,La Paz
+5590,Pirquita,Mendoza,La Paz
+5590,Villa Antigua,Mendoza,La Paz
+5549,Blanco Encalada,Mendoza,Las Heras
+5543,Capdeville,Mendoza,Las Heras
+5539,Ciudad de Las Heras,Mendoza,Las Heras
+5541,El Algarrobal,Mendoza,Las Heras
+5539,El Challao,Mendoza,Las Heras
+5541,El Pastal,Mendoza,Las Heras
+5541,El Plumerillo,Mendoza,Las Heras
+5543,El Resguardo,Mendoza,Las Heras
+5541,El Zapallar,Mendoza,Las Heras
+5543,Jocolí (LH),Mendoza,Las Heras
+5594,La Cienaguita,Mendoza,Las Heras
+5557,Las Cuevas,Mendoza,Las Heras
+5553,Los Penitentes,Mendoza,Las Heras
+5539,Panqueua,Mendoza,Las Heras
+5549,Papagayos,Mendoza,Las Heras
+5551,Polvareda,Mendoza,Las Heras
+5555,Puente del Inca,Mendoza,Las Heras
+5553,Punta de Vacas,Mendoza,Las Heras
+5545,Uspallata,Mendoza,Las Heras
+5539,Villavicencio,Mendoza,Las Heras
+5537,Arroyito,Mendoza,Lavalle
+5535,Asunción,Mendoza,Lavalle
+5533,Barrio La Pega,Mendoza,Lavalle
+5535,Colonia El Cármen,Mendoza,Lavalle
+5533,Colonia Palmera,Mendoza,Lavalle
+5535,Costa de Araujo,Mendoza,Lavalle
+5535,El Cavadito,Mendoza,Lavalle
+5537,El Forzudo,Mendoza,Lavalle
+5533,El Paramillo,Mendoza,Lavalle
+5535,El Plumero,Mendoza,Lavalle
+5537,El Retamo,Mendoza,Lavalle
+5533,El Retiro,Mendoza,Lavalle
+5533,El Vergel,Mendoza,Lavalle
+5535,Gustavo André,Mendoza,Lavalle
+5543,Jocolí (L),Mendoza,Lavalle
+5533,Jocolí Viejo,Mendoza,Lavalle
+5535,La Capilla,Mendoza,Lavalle
+5537,Lagunita,Mendoza,Lavalle
+5533,Las Violetas,Mendoza,Lavalle
+5535,San José (L),Mendoza,Lavalle
+5537,San Miguel,Mendoza,Lavalle
+5543,Tres de Mayo,Mendoza,Lavalle
+5533,Villa Tulumaya,Mendoza,Lavalle
+5509,Agrelo,Mendoza,Luján de Cuyo
+5509,Barrio Perdriel IV,Mendoza,Luján de Cuyo
+5549,Cacheuta,Mendoza,Luján de Cuyo
+5505,Carrodilla,Mendoza,Luján de Cuyo
+5505,Chacras de Coria,Mendoza,Luján de Cuyo
+5507,Ciudad de Luján,Mendoza,Luján de Cuyo
+5509,Costa Flores,Mendoza,Luján de Cuyo
+5509,El Carrizal,Mendoza,Luján de Cuyo
+5549,El Salto,Mendoza,Luján de Cuyo
+5505,La Puntilla,Mendoza,Luján de Cuyo
+5549,Las Compuertas,Mendoza,Luján de Cuyo
+5549,Las Vegas,Mendoza,Luján de Cuyo
+5507,Mayor Drummond,Mendoza,Luján de Cuyo
+5509,Perdriel,Mendoza,Luján de Cuyo
+5549,Potrerillos,Mendoza,Luján de Cuyo
+5509,Ugarteche,Mendoza,Luján de Cuyo
+5549,Valle del Sol,Mendoza,Luján de Cuyo
+5549,Vallecitos,Mendoza,Luján de Cuyo
+5509,Vistalba,Mendoza,Luján de Cuyo
+5517,Barrancas (Mpu),Mendoza,Maipú
+5515,Ciudad de Maipú,Mendoza,Maipú
+5513,Coquimbito,Mendoza,Maipú
+5517,Cruz de Piedra,Mendoza,Maipú
+5529,El Pedregal,Mendoza,Maipú
+5531,Fray Luis Beltrán,Mendoza,Maipú
+5511,General Gutierrez,Mendoza,Maipú
+5517,General Ortega,Mendoza,Maipú
+5517,Lunlunta,Mendoza,Maipú
+5513,Luzuriaga,Mendoza,Maipú
+5529,Rodeo del Medio,Mendoza,Maipú
+5517,Russell,Mendoza,Maipú
+5587,San Roque,Mendoza,Maipú
+5517,Villa Seca,Mendoza,Maipú
+5611,Agua del Toro (M),Mendoza,Malargüe
+5621,Agua Escondida,Mendoza,Malargüe
+5611,Bardas Blancas,Mendoza,Malargüe
+5613,Barrancas (Mal),Mendoza,Malargüe
+5613,Castillos de Pincheira,Mendoza,Malargüe
+5613,Ciudad de Malargüe,Mendoza,Malargüe
+5611,El Alambrado,Mendoza,Malargüe
+5613,El Chacay,Mendoza,Malargüe
+5611,El Manzano (M),Mendoza,Malargüe
+5613,El Zampal (M),Mendoza,Malargüe
+5611,Laguna Niña Encantada,Mendoza,Malargüe
+5613,Las Loicas,Mendoza,Malargüe
+5611,Los Molles,Mendoza,Malargüe
+5611,Los Ramblones,Mendoza,Malargüe
+5613,Malal Ranquil,Mendoza,Malargüe
+5613,Matancilla,Mendoza,Malargüe
+5613,Minacar,Mendoza,Malargüe
+5613,Paso El Pehuenche,Mendoza,Malargüe
+5613,Pata Mora,Mendoza,Malargüe
+5611,Ranquil Norte,Mendoza,Malargüe
+5612,Valle Hermoso,Mendoza,Malargüe
+5612,Valle Las Leñas,Mendoza,Malargüe
+5575,Andrade,Mendoza,Rivadavia
+5577,Barrio Cooperativa Los Campamentos,Mendoza,Rivadavia
+5577,Barrio Rivadavia,Mendoza,Rivadavia
+5577,Ciudad de Rivadavia,Mendoza,Rivadavia
+5579,El Mirador,Mendoza,Rivadavia
+5579,La Central,Mendoza,Rivadavia
+5579,La Esperanza,Mendoza,Rivadavia
+5579,La Florida,Mendoza,Rivadavia
+5579,La Libertad,Mendoza,Rivadavia
+5575,Los Arboles (R),Mendoza,Rivadavia
+5577,Los Campamentos,Mendoza,Rivadavia
+5585,Medrano (R),Mendoza,Rivadavia
+5579,Mundo Nuevo (R),Mendoza,Rivadavia
+5579,Reducción de Abajo,Mendoza,Rivadavia
+5579,Santa María de Oro,Mendoza,Rivadavia
+5569,Barrio El Cepillo,Mendoza,San Carlos
+5560,Capiz,Mendoza,San Carlos
+5569,Casas Viejas,Mendoza,San Carlos
+5569,Chilecito,Mendoza,San Carlos
+5569,Ciudad de San Carlos,Mendoza,San Carlos
+5569,Eugenio Bustos,Mendoza,San Carlos
+5567,La Consulta,Mendoza,San Carlos
+5569,Pampa de la Laguna,Mendoza,San Carlos
+5569,Pareditas,Mendoza,San Carlos
+5569,Paso de las Carretas,Mendoza,San Carlos
+5569,Tres Esquinas,Mendoza,San Carlos
+5571,Alto Salvador,Mendoza,San Martín
+5582,Alto Verde (S),Mendoza,San Martín
+5570,Buen Orden,Mendoza,San Martín
+5589,Chapanay,Mendoza,San Martín
+5584,Chimbas,Mendoza,San Martín
+5571,Chivilcoy,Mendoza,San Martín
+5570,Ciudad de San Martín,Mendoza,San Martín
+5589,El Central,Mendoza,San Martín
+5589,El Divisadero,Mendoza,San Martín
+5571,El Espino,Mendoza,San Martín
+5582,El Ramblón,Mendoza,San Martín
+5582,Ingeniero Giagnoni,Mendoza,San Martín
+5570,La Colonia (S),Mendoza,San Martín
+5571,Montecaseros,Mendoza,San Martín
+5535,Nueva California,Mendoza,San Martín
+5584,Palmira,Mendoza,San Martín
+5589,Tres Porteñas,Mendoza,San Martín
+5621,Agua del Toro (SR),Mendoza,San Rafael
+5607,Alto del Algarrobal,Mendoza,San Rafael
+5601,Capitán Montoya,Mendoza,San Rafael
+5600,Ciudad de San Rafael,Mendoza,San Rafael
+5615,Colonia 25 de Mayo,Mendoza,San Rafael
+5603,Colonia Colomer,Mendoza,San Rafael
+5601,Colonia El Usillal,Mendoza,San Rafael
+5603,Colonia Elena,Mendoza,San Rafael
+5603,Colonia Gelman,Mendoza,San Rafael
+5615,Colonia Iaccarini,Mendoza,San Rafael
+5607,Colonia La Española,Mendoza,San Rafael
+5600,Colonia La Llave Sur,Mendoza,San Rafael
+5607,Colonia Tabanera,Mendoza,San Rafael
+5603,Cuadro Benegas,Mendoza,San Rafael
+5607,Cuadro Nacional,Mendoza,San Rafael
+5605,El Nihuil,Mendoza,San Rafael
+5611,El Sosneado,Mendoza,San Rafael
+5603,El Tropezón,Mendoza,San Rafael
+5603,Goudge,Mendoza,San Rafael
+5603,Ingeniero Ballofet,Mendoza,San Rafael
+5623,Jaime Prats,Mendoza,San Rafael
+5603,La Llave,Mendoza,San Rafael
+5600,La Llave Nueva,Mendoza,San Rafael
+5603,La Llave Vieja,Mendoza,San Rafael
+5600,La Tombina,Mendoza,San Rafael
+5605,Las Malvinas,Mendoza,San Rafael
+5615,Los Reyunos,Mendoza,San Rafael
+5609,Monte Comán,Mendoza,San Rafael
+5623,Negro Quemado,Mendoza,San Rafael
+5603,Pedro Vargas,Mendoza,San Rafael
+5621,Punta del Agua,Mendoza,San Rafael
+5603,Rama Caída,Mendoza,San Rafael
+5624,Real del Padre,Mendoza,San Rafael
+5601,Resolana,Mendoza,San Rafael
+5603,Rodolfo Iselín,Mendoza,San Rafael
+5603,Salto de Las Rosas,Mendoza,San Rafael
+5632,Soitue,Mendoza,San Rafael
+5600,Valle Grande,Mendoza,San Rafael
+5622,Villa Atuel,Mendoza,San Rafael
+5605,Villa Atuel Norte,Mendoza,San Rafael
+5607,Vuelta de Rodrigo,Mendoza,San Rafael
+5596,Barrio 12 de Octubre,Mendoza,Santa Rosa
+5596,Ciudad de Santa Rosa,Mendoza,Santa Rosa
+5594,Comandante Salas,Mendoza,Santa Rosa
+5594,El Marcado,Mendoza,Santa Rosa
+5592,La Dormida,Mendoza,Santa Rosa
+5594,Las Catitas,Mendoza,Santa Rosa
+5595,Ñacuñán,Mendoza,Santa Rosa
+5565,Campo Los Andes,Mendoza,Tunuyán
+5560,Ciudad de Tunuyán,Mendoza,Tunuyán
+5565,Colonia Las Rosas,Mendoza,Tunuyán
+5560,El Manzano (T),Mendoza,Tunuyán
+5560,El Topón,Mendoza,Tunuyán
+5560,El Totoral,Mendoza,Tunuyán
+5565,La Primavera (T),Mendoza,Tunuyán
+5560,Las Pintadas,Mendoza,Tunuyán
+5563,Los Arboles (T),Mendoza,Tunuyán
+5563,Los Sauces,Mendoza,Tunuyán
+5563,Villa Seca,Mendoza,Tunuyán
+5565,Vista Flores,Mendoza,Tunuyán
+5509,Anchoris,Mendoza,Tupungato
+5561,Ciudad de Tupungato,Mendoza,Tupungato
+5561,Cordón del Plata,Mendoza,Tupungato
+5561,El Peral,Mendoza,Tupungato
+5561,El Zampal (T),Mendoza,Tupungato
+5560,El Zampalito,Mendoza,Tupungato
+5561,La Arboleda,Mendoza,Tupungato
+5561,San José (T),Mendoza,Tupungato
+5561,Villa Bastías,Mendoza,Tupungato
+5560,Zapata,Mendoza,Tupungato

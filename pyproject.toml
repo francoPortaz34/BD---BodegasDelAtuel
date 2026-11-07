@@ -1,0 +1,16 @@
+[project]
+name = "bodegas-del-atuel"
+version = "0.1.0"
+description = "TPI Bases de Datos - Bodegas del Atuel: scripts de carga masiva (Etapa 3)"
+readme = "db/seed/README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # Versiones fijas: la reproducibilidad del plan (misma semilla => mismos
+    # datos) depende también de la versión de Faker.
+    "psycopg[binary]==3.2.3",
+    "Faker==33.1.0",
+]
+
+[tool.uv]
+# El repositorio no es un paquete instalable: uv sólo gestiona el entorno (.venv) y uv.lock.
+package = false
