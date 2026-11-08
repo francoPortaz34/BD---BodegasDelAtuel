@@ -5,10 +5,10 @@
 -- =====================================================================
 SET search_path TO bodegas;
 
--- Caso 1 (paso 8): S5 con el índice parcial idx_transferencia_pendiente.
--- La tabla transferencia es chica: leerla entera es más barato que usar
--- el índice, así que el plan muestra Seq Scan aunque el índice exista.
-\echo '--- Caso 1: S5 (índice parcial existente, tabla chica)'
+-- Caso 1 (contraejemplo): S5 con el índice parcial idx_transferencia_pendiente.
+-- Solo 10 de las 1.795 transferencias están pendientes: el índice es chico y
+-- muy selectivo, y el plan SÍ lo usa (Bitmap Index Scan).
+\echo '--- Caso 1: S5 (el índice parcial sí se usa)'
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT s.id_sala, COUNT(t.id_transferencia) AS pendientes
 FROM sala_de_ventas s

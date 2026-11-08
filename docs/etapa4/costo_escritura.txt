@@ -1,0 +1,18 @@
+SET
+Timing is on.
+--- Inserción SIN índices
+CREATE TABLE AS
+Time: 17.113 ms
+INSERT 0 509987
+Time: 1170.649 ms (00:01.171)
+--- Inserción CON índices (PK + índice de la FK id_vino)
+CREATE TABLE AS
+Time: 21.528 ms
+ALTER TABLE
+Time: 17.220 ms
+CREATE INDEX
+Time: 9.810 ms
+INSERT 0 509987
+Time: 3507.001 ms (00:03.507)
+Timing is off.
+DROP TABLE

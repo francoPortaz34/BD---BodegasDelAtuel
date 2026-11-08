@@ -1,0 +1,139 @@
+SET
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=3628.80..8886.67 rows=3 width=18) (actual time=12.862..15.805 rows=3 loops=1)
+   Group Key: t.nombre
+   Buffers: shared hit=119 read=6558
+   ->  Incremental Sort  (cost=3628.80..8886.35 rows=58 width=14) (actual time=12.853..15.791 rows=71 loops=1)
+         Sort Key: t.nombre, c.id_cliente
+         Presorted Key: t.nombre
+         Full-sort Groups: 1  Sort Method: quicksort  Average Memory: 27kB  Peak Memory: 27kB
+         Pre-sorted Groups: 3  Sort Method: quicksort  Average Memory: 25kB  Peak Memory: 25kB
+         Buffers: shared hit=119 read=6558
+         ->  Nested Loop  (cost=1000.42..8884.33 rows=58 width=14) (actual time=12.149..15.689 rows=71 loops=1)
+               Join Filter: (t.id_tipo_cliente = cl.id_tipo_cliente)
+               Rows Removed by Join Filter: 142
+               Buffers: shared hit=113 read=6558
+               ->  Index Scan using uq_tipo_cliente_nombre on tipo_cliente t  (cost=0.13..12.18 rows=3 width=14) (actual time=0.024..0.026 rows=3 loops=1)
+                     Buffers: shared read=2
+               ->  Materialize  (cost=1000.29..8869.69 rows=58 width=8) (actual time=3.694..5.210 rows=71 loops=3)
+                     Buffers: shared hit=113 read=6556
+                     ->  Gather  (cost=1000.29..8869.40 rows=58 width=8) (actual time=11.078..15.610 rows=71 loops=1)
+                           Workers Planned: 2
+                           Workers Launched: 2
+                           Buffers: shared hit=113 read=6556
+                           ->  Nested Loop  (cost=0.29..7863.60 rows=24 width=8) (actual time=7.461..8.961 rows=24 loops=3)
+                                 Buffers: shared hit=113 read=6556
+                                 ->  Parallel Seq Scan on comprobante c  (cost=0.00..7704.00 rows=24 width=4) (actual time=7.369..7.476 rows=24 loops=3)
+                                       Filter: ((id_sala = 3) AND (fecha >= (CURRENT_DATE - 7)))
+                                       Rows Removed by Filter: 49976
+                                       Buffers: shared read=6454
+                                 ->  Index Scan using pk_cliente on cliente cl  (cost=0.29..6.65 rows=1 width=8) (actual time=0.062..0.062 rows=1 loops=71)
+                                       Index Cond: (id_cliente = c.id_cliente)
+                                       Buffers: shared hit=113 read=102
+ Planning:
+   Buffers: shared hit=220 read=6
+ Planning Time: 2.819 ms
+ Execution Time: 16.014 ms
+(34 rows)
+
+                                                                                      QUERY PLAN                                                                                      
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=338.33..338.33 rows=2 width=12) (actual time=1.301..1.302 rows=1 loops=1)
+   Buffers: shared hit=71 read=43
+   ->  Sort  (cost=338.33..338.33 rows=2 width=12) (actual time=1.300..1.301 rows=1 loops=1)
+         Sort Key: (sum((r.cantidad_botellas)::integer)) DESC
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=71 read=43
+         ->  GroupAggregate  (cost=338.28..338.32 rows=2 width=12) (actual time=1.290..1.291 rows=1 loops=1)
+               Group Key: t.id_sala
+               Buffers: shared hit=68 read=43
+               ->  Sort  (cost=338.28..338.29 rows=2 width=8) (actual time=1.282..1.283 rows=1 loops=1)
+                     Sort Key: t.id_sala
+                     Sort Method: quicksort  Memory: 25kB
+                     Buffers: shared hit=68 read=43
+                     ->  Nested Loop  (cost=0.29..338.27 rows=2 width=8) (actual time=1.269..1.280 rows=1 loops=1)
+                           Buffers: shared hit=68 read=43
+                           ->  Seq Scan on transferencia t  (cost=0.00..71.24 rows=35 width=8) (actual time=0.234..0.247 rows=35 loops=1)
+                                 Filter: (fecha_confeccion >= (CURRENT_DATE - 15))
+                                 Rows Removed by Filter: 1750
+                                 Buffers: shared read=40
+                           ->  Index Scan using uq_renglon_transferencia_vino on renglon_transferencia r  (cost=0.29..7.62 rows=1 width=8) (actual time=0.029..0.029 rows=0 loops=35)
+                                 Index Cond: ((id_transferencia = t.id_transferencia) AND (id_vino = 10))
+                                 Buffers: shared hit=68 read=3
+ Planning:
+   Buffers: shared hit=105 read=7
+ Planning Time: 3.861 ms
+ Execution Time: 1.330 ms
+(26 rows)
+
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=8573.17..8573.24 rows=25 width=36) (actual time=14.025..17.627 rows=25 loops=1)
+   Sort Key: (sum((total)::numeric)) DESC
+   Sort Method: quicksort  Memory: 25kB
+   Buffers: shared hit=113 read=6358
+   ->  Finalize GroupAggregate  (cost=8566.07..8572.59 rows=25 width=36) (actual time=13.977..17.611 rows=25 loops=1)
+         Group Key: id_sala
+         Buffers: shared hit=110 read=6358
+         ->  Gather Merge  (cost=8566.07..8571.91 rows=50 width=36) (actual time=13.969..17.582 rows=75 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               Buffers: shared hit=110 read=6358
+               ->  Sort  (cost=7566.05..7566.11 rows=25 width=36) (actual time=11.835..11.837 rows=25 loops=3)
+                     Sort Key: id_sala
+                     Sort Method: quicksort  Memory: 27kB
+                     Buffers: shared hit=110 read=6358
+                     Worker 0:  Sort Method: quicksort  Memory: 27kB
+                     Worker 1:  Sort Method: quicksort  Memory: 27kB
+                     ->  Partial HashAggregate  (cost=7565.16..7565.47 rows=25 width=36) (actual time=11.809..11.815 rows=25 loops=3)
+                           Group Key: id_sala
+                           Batches: 1  Memory Usage: 32kB
+                           Buffers: shared hit=96 read=6358
+                           Worker 0:  Batches: 1  Memory Usage: 32kB
+                           Worker 1:  Batches: 1  Memory Usage: 32kB
+                           ->  Parallel Seq Scan on comprobante  (cost=0.00..7547.75 rows=3481 width=10) (actual time=10.900..11.378 rows=2722 loops=3)
+                                 Filter: (fecha >= (CURRENT_DATE - '3 mons'::interval))
+                                 Rows Removed by Filter: 47278
+                                 Buffers: shared hit=96 read=6358
+ Planning:
+   Buffers: shared hit=34 read=3
+ Planning Time: 0.213 ms
+ Execution Time: 17.681 ms
+(31 rows)
+
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop Anti Join  (cost=0.00..1834183200.06 rows=10000 width=4) (actual time=339265.662..339265.665 rows=0 loops=1)
+   Join Filter: (NOT (SubPlan 1))
+   Rows Removed by Join Filter: 803
+   Buffers: shared hit=4310107 read=128674463
+   ->  Seq Scan on cliente cl  (cost=0.00..462.00 rows=20000 width=4) (actual time=0.026..32.919 rows=20000 loops=1)
+         Buffers: shared hit=64 read=198
+   ->  Materialize  (cost=0.00..10.10 rows=20 width=4) (actual time=0.018..0.018 rows=1 loops=20000)
+         Buffers: shared read=1
+         ->  Seq Scan on vino v  (cost=0.00..10.00 rows=20 width=4) (actual time=353.174..353.175 rows=2 loops=1)
+               Filter: (id_bodega = 5)
+               Rows Removed by Filter: 70
+               Buffers: shared read=1
+   SubPlan 1
+     ->  Nested Loop  (cost=0.42..8373.43 rows=1 width=0) (actual time=16.284..16.284 rows=0 loops=20803)
+           Buffers: shared hit=4310043 read=128674264
+           ->  Seq Scan on comprobante c  (cost=0.00..8329.00 rows=10 width=4) (actual time=6.643..16.147 rows=8 loops=20803)
+                 Filter: (id_cliente = cl.id_cliente)
+                 Rows Removed by Filter: 148035
+                 Buffers: shared hit=3843030 read=128672868
+           ->  Index Only Scan using pk_detalle_comprobante on detalle_comprobante d  (cost=0.42..4.44 rows=1 width=4) (actual time=0.014..0.014 rows=0 loops=156136)
+                 Index Cond: ((id_comprobante = c.id_comprobante) AND (id_vino = v.id_vino))
+                 Heap Fetches: 0
+                 Buffers: shared hit=467013 read=1396
+ Planning:
+   Buffers: shared hit=114 read=10
+ Planning Time: 5.248 ms
+ JIT:
+   Functions: 19
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 4.009 ms, Inlining 171.488 ms, Optimization 59.042 ms, Emission 122.656 ms, Total 357.194 ms
+ Execution Time: 340243.209 ms
+(31 rows)
+

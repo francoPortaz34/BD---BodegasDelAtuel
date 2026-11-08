@@ -33,3 +33,6 @@ desktop.ini
 ~$*
 *.drawio.bkp
 .$*.drawio
+
+# Material teórico de la cátedra (solo de consulta local, no se sube)
+/*.pdf
