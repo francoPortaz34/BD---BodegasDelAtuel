@@ -41,7 +41,7 @@ FECHA_INICIO = date(2021, 1, 1)   # primer mes con movimientos
 FECHA_FIN = date(2026, 11, 6)     # último día con movimientos (fija: reproducible)
 
 CANT_BODEGAS = 20
-VINOS_POR_BODEGA = 20             # 400 vinos
+VINOS_POR_BODEGA = 20             # 400 vinos, más 3 clásicos de la bodega propia
 CANT_SALAS = 25
 VINOS_POR_SALA = 30               # surtido de cada sala
 CANT_FINCAS = 60
@@ -222,7 +222,6 @@ def cargar_bodegas_y_vinos(cur, cat):
     nombres = set()
     bodegas = [(i, nuevo_cuit(30), nuevo_unico(lambda: f"Bodega {fake.last_name()}", nombres),
                 fake.street_name(), str(rnd.randint(1, 5000))) for i in range(1, CANT_BODEGAS + 1)]
-    copiar(cur, "bodega", ["id_bodega", "cuit", "razon_social", "calle", "numero"], bodegas)
 
     vinos, composicion, maridajes = [], [], []
     datos = {}            # id_vino -> (id_bodega, desde qué fecha se puede vender)
@@ -259,11 +258,28 @@ def cargar_bodegas_y_vinos(cur, cat):
         # Un vino se vende desde marzo del año siguiente a su añada
         datos[id_vino] = (id_bodega, max(FECHA_INICIO, date(anada + 1, 3, 1)))
 
+    # Bodega propia de la empresa con 3 vinos clásicos que están en todas las salas
+    id_propia = CANT_BODEGAS + 1
+    bodegas.append((id_propia, nuevo_cuit(30), "Bodega del Atuel", "Ruta 143", "100"))
+    clasicos = []
+    for nombre, tipo, cepa, maridaje, precio in [
+            ("Atuel Malbec", "tinto", "Malbec", "Carnes rojas", 9500),
+            ("Atuel Bonarda", "tinto", "Bonarda", "Pastas con salsa roja", 8200),
+            ("Atuel Torrontés", "blanco", "Torrontés", "Pescados y mariscos", 7800)]:
+        id_vino = len(vinos) + 1
+        vinos.append((id_vino, f"V{id_vino:04d}", nombre, tipo, 2020, 750, Decimal("13.5"), Decimal(precio),
+                      id_propia))
+        composicion.append((id_vino, cat["cepa_id"][cepa], 100))
+        maridajes.append((id_vino, cat["maridaje_id"][maridaje]))
+        datos[id_vino] = (id_propia, FECHA_INICIO)
+        clasicos.append(id_vino)
+
+    copiar(cur, "bodega", ["id_bodega", "cuit", "razon_social", "calle", "numero"], bodegas)
     copiar(cur, "vino", ["id_vino", "cod_vino", "nombre_comercial", "tipo", "anada", "presentacion_ml",
                          "graduacion_alcoholica", "precio_venta", "id_bodega"], vinos)
     copiar(cur, "vino_cepa", ["id_vino", "id_cepa", "porcentaje_corte"], composicion)
     copiar(cur, "vino_maridaje", ["id_vino", "id_maridaje"], maridajes)
-    return datos
+    return datos, clasicos
 
 
 # ---------------------------------------------------------------------
@@ -368,7 +384,7 @@ def procesar_documentos(cur, tabla, columna, procedimiento, ids):
         cur.execute(f"CALL {procedimiento}(%s)", (id_doc,))
 
 
-def cargar_movimientos(cur, vinos, cierre_sala, compradores, total_comprobantes):
+def cargar_movimientos(cur, vinos, clasicos, cierre_sala, compradores, total_comprobantes):
     lista_meses = []
     m = FECHA_INICIO
     while m <= FECHA_FIN:
@@ -378,7 +394,9 @@ def cargar_movimientos(cur, vinos, cierre_sala, compradores, total_comprobantes)
     for k in range(total_comprobantes % len(lista_meses)):
         por_mes[k] += 1
 
-    surtido = {s: rnd.sample(list(vinos), VINOS_POR_SALA) for s in cierre_sala}
+    # Surtido de cada sala: los vinos clásicos más otros elegidos al azar
+    otros = [v for v in vinos if v not in clasicos]
+    surtido = {s: clasicos + rnd.sample(otros, VINOS_POR_SALA - len(clasicos)) for s in cierre_sala}
     peso_sala = [rnd.uniform(0.5, 1.5) for _ in cierre_sala]
     altas = [c[0] for c in compradores]
     ids = defaultdict(int)          # último id usado en cada tabla
@@ -502,7 +520,7 @@ def main():
         t = time.perf_counter()
         cat = cargar_catalogos(cur)
         cierre_sala = cargar_salas(cur, cat)
-        vinos = cargar_bodegas_y_vinos(cur, cat)
+        vinos, clasicos = cargar_bodegas_y_vinos(cur, cat)
         cargar_produccion(cur, cat)
         compradores = cargar_clientes(cur, cat)
         cargar_transportistas(cur, cat)
@@ -510,7 +528,7 @@ def main():
 
         t = time.perf_counter()
         print("2. Movimientos (ingresos, transferencias y ventas):")
-        cargar_movimientos(cur, vinos, cierre_sala, compradores, total_comprobantes)
+        cargar_movimientos(cur, vinos, clasicos, cierre_sala, compradores, total_comprobantes)
         print(f"   {time.perf_counter() - t:.1f} s")
 
         # Cambios de precio posteriores a las ventas: el trigger de auditoría los registra (RN-13)

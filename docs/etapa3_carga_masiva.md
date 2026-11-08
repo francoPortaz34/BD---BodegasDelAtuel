@@ -52,6 +52,11 @@ Los datos son coherentes por construcción:
 - Solo compran clientes ya dados de alta, y nunca en el día de cierre de la sala.
 - Los porcentajes de corte suman 100. El vino 1 es el ejemplo de la consigna
   (Malbec Reserva 2021, 750 ml, $12.500, 85 % Malbec y 15 % Cabernet Sauvignon).
+- 20 bodegas con 20 vinos cada una, más la bodega propia de la empresa ("Bodega del Atuel",
+  id 21) con 3 vinos clásicos que están en el surtido de todas las salas. Cada sala vende
+  esos 3 clásicos y otros 27 vinos elegidos al azar. Así las consultas S2 (vinos vendidos
+  en todas las salas) y S12 (clientes que compraron todos los vinos de una bodega) tienen
+  resultados para mostrar.
 - Quedan 15 documentos sin procesar, para la vista de pendientes y la consulta S5.
 
 ## 4. Manejo de los triggers (paso 5)
@@ -93,9 +98,9 @@ Tiempos de la carga completa (PostgreSQL 16 en Docker, notebook del grupo):
 
 | Fase | Tiempo |
 |---|---:|
-| Catálogos y datos base | 2,2 s |
-| Movimientos (ingresos, transferencias y 150.000 ventas) | 595,7 s |
-| **Total** | **601 s (unos 10 minutos)** |
+| Catálogos y datos base | 2,0 s |
+| Movimientos (ingresos, transferencias y 150.000 ventas) | 467,4 s |
+| **Total** | **472 s (unos 8 minutos)** |
 
 Casi todo el tiempo se va en los renglones de venta: cada uno dispara los triggers
 de la venta (controlar stock, completar precio y descuento, descontar stock y recalcular
@@ -105,20 +110,20 @@ el comprobante). Es el costo de mantener las reglas activas durante la carga.
 
 | Tabla | Filas | | Tabla | Filas |
 |---|---:|---|---|---:|
-| detalle_comprobante | **509.987** | | analisis_calidad | 5.052 |
-| comprobante | **150.000** | | permiso_exportacion | 3.050 |
-| renglon_transferencia | 41.809 | | lote_de_uva | 2.525 |
-| cliente | 20.000 | | distribuidor | 2.030 |
-| renglon_ingreso | 18.979 | | transferencia | 1.785 |
-| socio | 16.945 | | ingreso | 1.425 |
-| exportador | 1.025 | | vino_maridaje | 759 |
-| stock_sala | 750 | | vino_cepa | 567 |
-| parcela | 468 | | vino | 400 |
-| stock_deposito | 342 | | encargado / localidad | 269 |
-| empleado | 123 | | transportista_localidad | 73 |
+| detalle_comprobante | **510.310** | | analisis_calidad | 4.991 |
+| comprobante | **150.000** | | permiso_exportacion | 3.049 |
+| renglon_transferencia | 42.894 | | lote_de_uva | 2.499 |
+| cliente | 20.000 | | distribuidor | 2.033 |
+| renglon_ingreso | 18.213 | | transferencia | 1.785 |
+| socio | 16.942 | | ingreso | 1.496 |
+| exportador | 1.025 | | vino_maridaje | 762 |
+| stock_sala | 750 | | vino_cepa | 570 |
+| parcela | 462 | | vino | 403 |
+| stock_deposito | 331 | | encargado / localidad | 269 |
+| empleado | 123 | | transportista_localidad | 72 |
 | finca | 60 | | auditoria_precio | 40 |
-| sala_de_ventas | 25 | | bodega | 20 |
-| transportista_email | 22 | | transportista_telefono | 19 |
+| sala_de_ventas | 25 | | bodega | 21 |
+| transportista_email | 22 | | transportista_telefono | 25 |
 | departamento | 18 | | transportista | 15 |
 | cepa | 12 | | maridaje | 8 |
 | tipo_cliente | 3 | | | |
@@ -141,14 +146,14 @@ Las 34 tablas tienen filas, 6 superan las 10.000 y 2 superan las 100.000.
 
 ## 7. Volcado (paso 8)
 
-`dump_completo.sql.gz` (7,6 MB) en la raíz del repositorio, generado con:
+`dump_completo.sql.gz` (7,5 MB) en la raíz del repositorio, generado con:
 
 ```sh
 docker exec bodegas_atuel_db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" | gzip' > dump_completo.sql.gz
 ```
 
 Se probó restaurarlo en una base nueva y los conteos y las sumas coinciden con la original
-(150.000 comprobantes, 509.987 renglones, mismo total vendido y mismo stock):
+(150.000 comprobantes, 510.310 renglones, mismo total vendido y mismo stock):
 
 ```sh
 createdb bodegas_restore

@@ -6,7 +6,7 @@
 SET search_path TO bodegas;
 
 -- Caso 1 (contraejemplo): S5 con el índice parcial idx_transferencia_pendiente.
--- Solo 10 de las 1.795 transferencias están pendientes: el índice es chico y
+-- Solo 10 de las 1.785 transferencias están pendientes: el índice es chico y
 -- muy selectivo, y el plan SÍ lo usa (Bitmap Index Scan).
 \echo '--- Caso 1: S5 (el índice parcial sí se usa)'
 EXPLAIN (ANALYZE, BUFFERS)

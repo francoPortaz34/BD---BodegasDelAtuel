@@ -1,77 +1,77 @@
 SET
---- Caso 1: S5 (índice parcial existente, tabla chica)
+--- Caso 1: S5 (el índice parcial sí se usa)
                                                                        QUERY PLAN                                                                       
 --------------------------------------------------------------------------------------------------------------------------------------------------------
- Sort  (cost=34.05..34.11 rows=25 width=12) (actual time=0.134..0.137 rows=25 loops=1)
+ Sort  (cost=34.05..34.11 rows=25 width=12) (actual time=0.079..0.081 rows=25 loops=1)
    Sort Key: (count(t.id_transferencia))
    Sort Method: quicksort  Memory: 25kB
    Buffers: shared hit=4 read=2
-   ->  HashAggregate  (cost=33.22..33.47 rows=25 width=12) (actual time=0.096..0.103 rows=25 loops=1)
+   ->  HashAggregate  (cost=33.22..33.47 rows=25 width=12) (actual time=0.059..0.062 rows=25 loops=1)
          Group Key: s.id_sala
          Batches: 1  Memory Usage: 24kB
          Buffers: shared hit=1 read=2
-         ->  Hash Right Join  (cost=9.75..33.09 rows=25 width=8) (actual time=0.072..0.084 rows=27 loops=1)
+         ->  Hash Right Join  (cost=9.75..33.09 rows=25 width=8) (actual time=0.047..0.053 rows=27 loops=1)
                Hash Cond: (t.id_sala = s.id_sala)
                Buffers: shared hit=1 read=2
-               ->  Bitmap Heap Scan on transferencia t  (cost=8.19..31.51 rows=10 width=8) (actual time=0.022..0.023 rows=10 loops=1)
+               ->  Bitmap Heap Scan on transferencia t  (cost=8.19..31.51 rows=10 width=8) (actual time=0.011..0.012 rows=10 loops=1)
                      Recheck Cond: (estado <> 'procesado'::estado_movimiento)
                      Heap Blocks: exact=1
                      Buffers: shared hit=1 read=1
-                     ->  Bitmap Index Scan on idx_transferencia_pendiente  (cost=0.00..8.19 rows=10 width=0) (actual time=0.011..0.012 rows=10 loops=1)
+                     ->  Bitmap Index Scan on idx_transferencia_pendiente  (cost=0.00..8.19 rows=10 width=0) (actual time=0.006..0.006 rows=10 loops=1)
                            Buffers: shared read=1
-               ->  Hash  (cost=1.25..1.25 rows=25 width=4) (actual time=0.034..0.034 rows=25 loops=1)
+               ->  Hash  (cost=1.25..1.25 rows=25 width=4) (actual time=0.019..0.020 rows=25 loops=1)
                      Buckets: 1024  Batches: 1  Memory Usage: 9kB
                      Buffers: shared read=1
-                     ->  Seq Scan on sala_de_ventas s  (cost=0.00..1.25 rows=25 width=4) (actual time=0.018..0.021 rows=25 loops=1)
+                     ->  Seq Scan on sala_de_ventas s  (cost=0.00..1.25 rows=25 width=4) (actual time=0.009..0.011 rows=25 loops=1)
                            Buffers: shared read=1
  Planning:
-   Buffers: shared hit=192 read=1
- Planning Time: 0.871 ms
- Execution Time: 0.277 ms
+   Buffers: shared hit=189 read=2
+ Planning Time: 0.536 ms
+ Execution Time: 0.145 ms
 (26 rows)
 
 --- Caso 2: S1 (hay que leer toda la tabla)
                                                                                    QUERY PLAN                                                                                   
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=8646.42..8646.45 rows=10 width=37) (actual time=74.435..76.244 rows=10 loops=1)
-   Buffers: shared hit=3781 read=4
-   ->  Sort  (cost=8646.42..8647.42 rows=400 width=37) (actual time=74.434..76.240 rows=10 loops=1)
+ Limit  (cost=8652.83..8652.86 rows=10 width=37) (actual time=76.300..78.267 rows=10 loops=1)
+   Buffers: shared hit=3788
+   ->  Sort  (cost=8652.83..8653.84 rows=403 width=37) (actual time=76.299..78.263 rows=10 loops=1)
          Sort Key: (sum((d.cantidad)::integer)) DESC
          Sort Method: top-N heapsort  Memory: 26kB
-         Buffers: shared hit=3781 read=4
-         ->  Finalize GroupAggregate  (cost=8536.44..8637.78 rows=400 width=37) (actual time=74.154..76.184 rows=342 loops=1)
+         Buffers: shared hit=3788
+         ->  Finalize GroupAggregate  (cost=8542.02..8644.12 rows=403 width=37) (actual time=75.668..78.162 rows=331 loops=1)
                Group Key: v.id_vino
-               Buffers: shared hit=3781 read=4
-               ->  Gather Merge  (cost=8536.44..8629.78 rows=800 width=37) (actual time=74.145..76.068 rows=1026 loops=1)
+               Buffers: shared hit=3788
+               ->  Gather Merge  (cost=8542.02..8636.06 rows=806 width=37) (actual time=75.659..77.903 rows=993 loops=1)
                      Workers Planned: 2
                      Workers Launched: 2
-                     Buffers: shared hit=3781 read=4
-                     ->  Sort  (cost=7536.42..7537.42 rows=400 width=37) (actual time=70.184..70.200 rows=342 loops=3)
+                     Buffers: shared hit=3788
+                     ->  Sort  (cost=7542.00..7543.01 rows=403 width=37) (actual time=73.401..73.425 rows=331 loops=3)
                            Sort Key: v.id_vino
                            Sort Method: quicksort  Memory: 46kB
-                           Buffers: shared hit=3781 read=4
+                           Buffers: shared hit=3788
                            Worker 0:  Sort Method: quicksort  Memory: 46kB
                            Worker 1:  Sort Method: quicksort  Memory: 46kB
-                           ->  Partial HashAggregate  (cost=7515.13..7519.13 rows=400 width=37) (actual time=70.015..70.063 rows=342 loops=3)
+                           ->  Partial HashAggregate  (cost=7520.53..7524.56 rows=403 width=37) (actual time=73.249..73.300 rows=331 loops=3)
                                  Group Key: v.id_vino
-                                 Batches: 1  Memory Usage: 93kB
-                                 Buffers: shared hit=3767 read=4
-                                 Worker 0:  Batches: 1  Memory Usage: 93kB
-                                 Worker 1:  Batches: 1  Memory Usage: 93kB
-                                 ->  Hash Join  (cost=14.00..6452.65 rows=212495 width=33) (actual time=0.255..45.490 rows=169996 loops=3)
+                                 Batches: 1  Memory Usage: 61kB
+                                 Buffers: shared hit=3774
+                                 Worker 0:  Batches: 1  Memory Usage: 61kB
+                                 Worker 1:  Batches: 1  Memory Usage: 61kB
+                                 ->  Hash Join  (cost=14.07..6457.38 rows=212629 width=33) (actual time=0.149..48.034 rows=170103 loops=3)
                                        Hash Cond: (d.id_vino = v.id_vino)
-                                       Buffers: shared hit=3767 read=4
-                                       ->  Parallel Seq Scan on detalle_comprobante d  (cost=0.00..5874.95 rows=212495 width=8) (actual time=0.009..12.294 rows=169996 loops=3)
-                                             Buffers: shared hit=3750
-                                       ->  Hash  (cost=9.00..9.00 rows=400 width=29) (actual time=0.200..0.201 rows=400 loops=3)
+                                       Buffers: shared hit=3774
+                                       ->  Parallel Seq Scan on detalle_comprobante d  (cost=0.00..5879.29 rows=212629 width=8) (actual time=0.005..13.297 rows=170103 loops=3)
+                                             Buffers: shared hit=3753
+                                       ->  Hash  (cost=9.03..9.03 rows=403 width=29) (actual time=0.124..0.125 rows=403 loops=3)
                                              Buckets: 1024  Batches: 1  Memory Usage: 33kB
-                                             Buffers: shared hit=11 read=4
-                                             ->  Seq Scan on vino v  (cost=0.00..9.00 rows=400 width=29) (actual time=0.018..0.087 rows=400 loops=3)
-                                                   Buffers: shared hit=11 read=4
+                                             Buffers: shared hit=15
+                                             ->  Seq Scan on vino v  (cost=0.00..9.03 rows=403 width=29) (actual time=0.012..0.050 rows=403 loops=3)
+                                                   Buffers: shared hit=15
  Planning:
-   Buffers: shared hit=131 read=8
- Planning Time: 0.887 ms
- Execution Time: 76.368 ms
+   Buffers: shared hit=129 read=8
+ Planning Time: 0.502 ms
+ Execution Time: 78.326 ms
 (39 rows)
 
 --- Índice descartado: cliente(id_tipo_cliente)
@@ -80,14 +80,14 @@ CREATE INDEX
 ANALYZE
                                                  QUERY PLAN                                                 
 ------------------------------------------------------------------------------------------------------------
- Seq Scan on cliente  (cost=0.00..512.00 rows=16945 width=71) (actual time=0.008..2.959 rows=16945 loops=1)
+ Seq Scan on cliente  (cost=0.00..512.00 rows=16942 width=71) (actual time=0.005..2.366 rows=16942 loops=1)
    Filter: (id_tipo_cliente = 1)
-   Rows Removed by Filter: 3055
+   Rows Removed by Filter: 3058
    Buffers: shared hit=262
  Planning:
-   Buffers: shared hit=35 read=1
- Planning Time: 0.292 ms
- Execution Time: 3.650 ms
+   Buffers: shared hit=36 read=1
+ Planning Time: 0.150 ms
+ Execution Time: 2.877 ms
 (8 rows)
 
 ROLLBACK

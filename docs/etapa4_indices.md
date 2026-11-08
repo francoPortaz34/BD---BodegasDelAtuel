@@ -33,20 +33,22 @@ Las consultas medidas están en `db/rendimiento/medir.sql` (S3, S4, S8 y S12 de 
 
 **Orden de las columnas del índice compuesto.** Va primero `id_sala`, que se compara por igualdad, y después `fecha`, que se compara por rango. Así el índice entra directo a las ventas de esa sala y dentro de ella recorre solo las fechas pedidas. Con el orden inverso `(fecha, id_sala)`, recorrería todas las ventas del período, de todas las salas, y recién después filtraría la sala. Cuanto más largo es el período, más diferencia hay.
 
-**Cuándo se usa el compuesto.** En S3, que pide solo la última semana, el planificador prefiere `idx_comprobante_fecha_cubriente`: la fecha sola ya deja pocas filas (2.112 de 150.000) y después filtra la sala. Con un período largo, en cambio, usa el compuesto. Por ejemplo, las ventas de la sala 3 en el último año se resuelven con *Index Only Scan* sobre `idx_comprobante_sala_fecha` en 0,48 ms. El planificador elige el índice según cuántas filas espera leer.
+**Cuándo se usa el compuesto.** En S3, que pide solo la última semana, el planificador prefiere `idx_comprobante_fecha_cubriente`: la fecha sola ya deja pocas filas (2.112 de 150.000) y después filtra la sala. Con un período largo, en cambio, usa el compuesto. Por ejemplo, las ventas de la sala 3 en el último año se resuelven con *Index Only Scan* sobre `idx_comprobante_sala_fecha` en 0,32 ms. El planificador elige el índice según cuántas filas espera leer.
 
 ## 3. Tabla comparativa
 
-Datos de `docs/etapa4/antes.txt` y `despues.txt` (base con 150.000 comprobantes y 509.987 renglones; mediciones del 08/11/2026).
+Datos de `docs/etapa4/antes.txt` y `despues.txt` (base con 150.000 comprobantes y 510.310 renglones; mediciones del 08/11/2026).
 
 | Consulta | Tiempo antes | Tiempo después | Recorrido antes | Recorrido después | Filas leídas antes → después |
 |---|---:|---:|---|---|---|
-| S3 | 16,0 ms | 1,1 ms | Parallel Seq Scan on comprobante | Index Scan (`idx_comprobante_fecha_cubriente`) | 150.000 → 2.112 |
-| S4 | 1,3 ms | 0,5 ms | Index Scan (`uq_renglon_transferencia_vino`), una vez por transferencia reciente | Bitmap Index Scan (`idx_renglon_transf_vino`) | 35 búsquedas → 33 filas |
-| S8 | 17,7 ms | 1,9 ms | Parallel Seq Scan on comprobante | Index Only Scan (`idx_comprobante_fecha_cubriente`), sin leer la tabla | 150.000 → 8.165 |
-| S12 | 340.243 ms (5 min 40 s) | 656 ms | Seq Scan on comprobante, repetido 20.803 veces | Bitmap Index Scan (`idx_comprobante_cliente`), 20.803 veces | unas 3.100 millones → unas 166.000 |
+| S3 | 12,3 ms | 0,9 ms | Parallel Seq Scan on comprobante | Index Scan (`idx_comprobante_fecha_cubriente`) | 150.000 → 2.112 |
+| S4 | 0,36 ms | 0,55 ms | Index Scan (`uq_renglon_transferencia_vino`), una vez por cada una de las 35 transferencias recientes | Bitmap Index Scan (`idx_renglon_transf_vino`) | 35 búsquedas → 66 filas |
+| S8 | 17,1 ms | 2,3 ms | Parallel Seq Scan on comprobante | Index Only Scan (`idx_comprobante_fecha_cubriente`), sin leer la tabla | 150.000 → 8.136 |
+| S12 | 202.404 ms (3 min 22 s) | 499 ms | Seq Scan on comprobante, repetido 20.930 veces | Bitmap Index Scan (`idx_comprobante_cliente`), 20.930 veces | unas 3.100 millones → unas 167.000 |
 
-Las cuatro consultas mejoran. La diferencia más grande está en S12 (unas 500 veces más rápida): sin índice sobre la clave foránea `comprobante.id_cliente`, por cada cliente se recorren los 150.000 comprobantes; con el índice se va directo a los pocos comprobantes de ese cliente.
+Mejoran S3, S8 y S12. La diferencia más grande está en S12 (unas 400 veces más rápida): sin índice sobre la clave foránea `comprobante.id_cliente`, por cada cliente se recorren los 150.000 comprobantes; con el índice se va directo a los pocos comprobantes de ese cliente.
+
+**S4 no mejora.** En S4 el filtro que más descarta es la fecha: en los últimos 15 días hubo solo 35 transferencias. Sin el índice nuevo, la base ya lo resolvía bien buscando el vino en esas 35 transferencias con el índice UNIQUE `(id_transferencia, id_vino)` de la etapa 2. Con `idx_renglon_transf_vino`, el planificador prefiere leer todas las transferencias del vino (66 renglones) y después filtrar la fecha, que resulta apenas más lento (0,2 ms de diferencia). El índice igual se mantiene porque `id_vino` es clave foránea: al borrar un vino, la base tiene que comprobar que no tenga transferencias (RN-14), y sin este índice recorrería toda la tabla.
 
 ## 4. Índice evaluado y descartado
 
@@ -56,19 +58,20 @@ Se evaluó `cliente (id_tipo_cliente)` y se descartó. La columna tiene solo 3 v
 
 `costo_escritura.txt` mide cuánto tarda insertar todos los renglones de venta en una tabla sin índices y en otra con la PK y el índice de la FK.
 
-| Inserción de los 509.987 renglones de detalle_comprobante | Tiempo |
+| Inserción de los 510.310 renglones de detalle_comprobante | Tiempo |
 |---|---:|
-| Sin índices | 1,17 s |
-| Con PK + índice de FK | 3,51 s |
+| Sin índices | 0,93 s |
+| Con PK + índice de FK | 2,69 s |
 
-Con dos índices, la misma inserción tarda tres veces más. Cada índice se actualiza en cada INSERT, UPDATE o DELETE, así que la escritura se vuelve más lenta. Por eso se crean solo los índices que mejoran consultas concretas. En una carga masiva conviene crear los índices después de cargar los datos.
+Con dos índices, la misma inserción tarda casi tres veces más. Cada índice se actualiza en cada INSERT, UPDATE o DELETE, así que la escritura se vuelve más lenta. Por eso se crean solo los índices que mejoran consultas concretas. En una carga masiva conviene crear los índices después de cargar los datos.
 
 ## 6. Casos en que el planificador no usa un índice
 
 Resultados en `docs/etapa4/indices_no_usados.txt`.
 
-1. **S1 con `idx_detalle_vino`.** El ranking suma todos los renglones de venta. Como hay que leer la tabla completa, el índice no ahorra nada y el plan hace *Parallel Seq Scan* sobre los 509.987 renglones (76 ms), aunque el índice exista.
-2. **El índice descartado `cliente (id_tipo_cliente)`.** Buscando los socios, el plan hace *Seq Scan* aunque el índice exista: los socios son 16.945 de 20.000 clientes (85 %), así que leer la tabla entera es más barato (baja selectividad).
+1. **S1 con `idx_detalle_vino`.** El ranking suma todos los renglones de venta. Como hay que leer la tabla completa, el índice no ahorra nada y el plan hace *Parallel Seq Scan* sobre los 510.310 renglones (78 ms), aunque el índice exista.
+2. **El índice descartado `cliente (id_tipo_cliente)`.** Buscando los socios, el plan hace *Seq Scan* aunque el índice exista: los socios son 16.942 de 20.000 clientes (85 %), así que leer la tabla entera es más barato (baja selectividad).
 3. **S3 y el índice compuesto** (ver sección 2): para la última semana el planificador prefiere el índice de `fecha`, que deja menos filas.
+4. **S4** (ver sección 3): el índice se usa, pero no conviene, porque el filtro por fecha ya deja muy pocas filas.
 
-En cambio, el índice parcial **sí se usa** en S5 (*Bitmap Index Scan* sobre `idx_transferencia_pendiente`): de 1.795 transferencias, solo 10 están pendientes, así que el índice es chico y muy selectivo. Es el caso de uso típico de un índice parcial.
+En cambio, el índice parcial **sí se usa** en S5 (*Bitmap Index Scan* sobre `idx_transferencia_pendiente`): de 1.785 transferencias, solo 10 están pendientes, así que el índice es chico y muy selectivo. Es el caso de uso típico de un índice parcial.
