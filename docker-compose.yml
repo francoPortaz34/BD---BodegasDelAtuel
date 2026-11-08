@@ -18,6 +18,9 @@ services:
     image: postgres:16
     container_name: bodegas_atuel_db
     restart: unless-stopped
+    # Docker da 64 MB de memoria compartida por defecto; las consultas en
+    # paralelo sobre las tablas grandes necesitan más.
+    shm_size: 256mb
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-bodegas_atuel}
       POSTGRES_USER: ${POSTGRES_USER:-bodegas_admin}
