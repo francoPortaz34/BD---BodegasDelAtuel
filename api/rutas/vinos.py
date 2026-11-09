@@ -30,6 +30,14 @@ class VinoNuevo(VinoDatos):
     cepas: list[Corte]
 
 
+class VinoEdicion(VinoDatos):
+    # Opcionales. Omitido (o null): no se toca. Lista: REEMPLAZA lo actual por la
+    # lista enviada; una lista vacía quita todo (para las cepas, la regla RN-05 de
+    # la base lo rechaza porque la composición ya no suma 100).
+    cepas: list[Corte] | None = None
+    maridajes: list[int] | None = None   # id_maridaje de cada maridaje recomendado
+
+
 def ficha(conn, cod):
     """Vino con sus cepas y maridajes; 404 si no existe."""
     vino = datos.obtener_vino(conn, cod)
@@ -69,10 +77,23 @@ def crear(vino: VinoNuevo):
 
 
 @router.put("/{cod}")
-def modificar(cod: str, vino: VinoDatos):
+def modificar(cod: str, vino: VinoEdicion):
     with pool.connection() as conn:
-        if not datos.actualizar_vino(conn, cod, vino.model_dump()):
-            raise HTTPException(status_code=404, detail="Vino no encontrado")
+        # BEGIN; ficha + (composición) + (maridajes); COMMIT. Si cualquier paso
+        # falla -incluida la regla RN-05, que el trigger diferido controla al
+        # COMMIT- se hace ROLLBACK y el vino queda como estaba.
+        with conn.transaction():
+            id_vino = datos.actualizar_vino(conn, cod, vino.model_dump(exclude={"cepas", "maridajes"}))
+            if id_vino is None:
+                raise HTTPException(status_code=404, detail="Vino no encontrado")
+            if vino.cepas is not None:
+                datos.borrar_cortes(conn, id_vino)
+                for c in vino.cepas:
+                    datos.insertar_corte(conn, id_vino, c.id_cepa, c.porcentaje_corte)
+            if vino.maridajes is not None:
+                datos.borrar_maridajes(conn, id_vino)
+                for id_maridaje in vino.maridajes:
+                    datos.insertar_maridaje(conn, id_vino, id_maridaje)
         return ficha(conn, cod)
 
 

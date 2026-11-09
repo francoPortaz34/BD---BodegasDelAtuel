@@ -25,6 +25,7 @@ class ConexionFalsa:
         self.eventos = []      # SQL ejecutado y BEGIN / COMMIT / ROLLBACK, en orden
         self.parametros = []   # parámetros enviados en cada execute
         self.fila = None       # lo que devuelve fetchone() (None = no existe)
+        self.filas = []        # lo que devuelve fetchall()
         self.falla_si = None   # (texto del SQL, error): simula un rechazo de la base
 
     def execute(self, sql, params=None):
@@ -39,7 +40,7 @@ class ConexionFalsa:
         return self.fila
 
     def fetchall(self):
-        return []
+        return self.filas
 
     @contextmanager
     def transaction(self):

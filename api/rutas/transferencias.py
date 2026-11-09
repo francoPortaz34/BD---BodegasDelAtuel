@@ -33,6 +33,13 @@ def crear(transferencia: TransferenciaNueva):
         return buscar(conn, transferencia.num_solicitud)
 
 
+@router.get("/{nro}")
+def detalle(nro: str):
+    # Cabecera, estado actual y renglones: el front habilita los botones según el estado
+    with pool.connection() as conn:
+        return buscar(conn, nro)
+
+
 @router.post("/{nro}/renglones", status_code=201)
 def agregar_renglon(nro: str, renglon: Renglon):
     with pool.connection() as conn:

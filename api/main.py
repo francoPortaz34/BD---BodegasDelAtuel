@@ -7,7 +7,7 @@ from psycopg_pool import PoolTimeout
 
 from db import pool
 from errores import error_postgres
-from rutas import clientes, comprobantes, ingresos, reportes, transferencias, vinos
+from rutas import catalogos, clientes, comprobantes, ingresos, reportes, transferencias, vinos
 
 
 @asynccontextmanager
@@ -30,6 +30,7 @@ app.include_router(comprobantes.router)
 app.include_router(transferencias.router)
 app.include_router(ingresos.router)
 app.include_router(reportes.router)
+app.include_router(catalogos.router)
 
 
 @app.get("/salud")

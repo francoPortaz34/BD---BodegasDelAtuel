@@ -100,14 +100,15 @@ curl -i http://127.0.0.1:8000/salud
 | Vinos | `GET /vinos` | Catálogo paginado (`pagina`, `tamanio`) con filtros `tipo`, `cepa` (nombre), `bodega` (id) y `anada` |
 | | `GET /vinos/{cod}` | Detalle con bodega, cepas (porcentajes) y maridajes |
 | | `POST /vinos` | Alta del vino con su composición, en una transacción |
-| | `PUT /vinos/{cod}` | Modificación (si cambia el precio, el trigger lo audita) |
+| | `PUT /vinos/{cod}` | Modificación de la ficha y, opcionalmente, de la composición y los maridajes, en una transacción (si cambia el precio, el trigger lo audita) |
 | | `DELETE /vinos/{cod}` | Baja (409 si tiene movimientos) |
-| Clientes | `GET /clientes`, `GET /clientes/{id}` | Listado paginado y detalle con tipo y subtipo |
+| Clientes | `GET /clientes`, `GET /clientes/{id}` | Listado paginado (`pagina`, `tamanio` ≤ 100) con búsqueda opcional `nombre` y `documento`; detalle con tipo y subtipo |
 | | `POST /clientes` | Alta del cliente y de su subtipo (socio, distribuidor o exportador) |
 | | `PUT /clientes/{id}`, `DELETE /clientes/{id}` | Modificación y baja (409 si tiene comprobantes) |
 | Comprobantes | `POST /comprobantes` | Venta completa (cabecera y renglones) en una transacción |
 | | `GET /comprobantes/{nro}` | Cabecera y renglones |
 | Transferencias | `POST /transferencias` | Alta (nace en confección) |
+| | `GET /transferencias/{nro}` | Cabecera, estado actual y renglones (404 si no existe) |
 | | `POST /transferencias/{nro}/renglones` | Carga de un renglón mientras está en confección |
 | | `POST /transferencias/{nro}/terminar` | Pasa a terminado |
 | | `POST /transferencias/{nro}/procesar` | Llama a `sp_procesar_transferencia` |
@@ -118,9 +119,90 @@ curl -i http://127.0.0.1:8000/salud
 | | `GET /reportes/vinos-sin-stock?sala=N` | S6: sin stock en la sala y con stock en el depósito |
 | | `GET /reportes/transportista-activo` | S7: transportista con más ingresos del último mes |
 | | `GET /reportes/trazabilidad/{cod}` | Recorrido de un vino: ingresos, transferencias y ventas por sala |
+| Catálogos | `GET /salas` | Todas las salas (tengan o no ventas) con su localidad |
+| | `GET /bodegas` | Bodegas del grupo |
+| | `GET /cepas` | Catálogo de cepas |
+| | `GET /maridajes` | Catálogo de maridajes |
 
 La API no calcula totales, descuentos ni stock: los resuelven los triggers, funciones y
 procedimientos de la base. Todas las consultas están parametrizadas.
+
+### Catálogos (Etapa 7)
+
+Listas de solo lectura para los selectores del front. Son tablas chicas (25 salas,
+21 bodegas, 12 cepas, 8 maridajes en el dataset): se devuelven completas, sin paginar,
+como un arreglo JSON. Responden `200` (o `500`/`503` si falla la base).
+
+```text
+GET /salas      -> [{"id_sala": 1, "calle": "Diag. San Martin", "numero": "502",
+                     "dia_cierre_semanal": "domingo", "id_localidad": 203,
+                     "localidad": "Ciudad de San Rafael", "provincia": "Mendoza"}, ...]
+GET /bodegas    -> [{"id_bodega": 3, "cuit": "30820426546", "razon_social": "Bodega Aguero",
+                     "calle": "Diagonal 195 B", "numero": "3802"}, ...]      (por razón social)
+GET /cepas      -> [{"id_cepa": 5, "nombre": "Bonarda", "tipo": "tinta"}, ...]   (por nombre)
+GET /maridajes  -> [{"id_maridaje": 4, "nombre": "Carnes blancas",
+                     "temperatura_sugerida": 12.0}, ...]                     (por nombre)
+```
+
+### Detalle de una transferencia
+
+`GET /transferencias/{nro}` (número de solicitud) devuelve lo mismo que las operaciones
+`POST` de transferencias; el front usa `estado` (`en_confeccion`, `terminado`,
+`procesado`) para habilitar los botones.
+
+```text
+200 {"id_transferencia": 1, "num_solicitud": "TR-000001", "fecha_confeccion": "2021-01-02",
+     "estado": "procesado", "id_sala": 1,
+     "renglones": [{"id_vino": 60, "cod_vino": "V0060", "nombre_comercial": "Malbec Clásico",
+                    "cantidad_botellas": 36}, ...]}
+404 {"detail": "Transferencia no encontrada"}
+```
+
+### Búsqueda de clientes
+
+`GET /clientes?nombre=garc&documento=20&pagina=1&tamanio=20`
+
+- `nombre`: parte de `nombre_o_razon_social`, sin distinguir mayúsculas (`ILIKE`).
+- `documento`: parte de `num_documento`.
+- Los dos son opcionales y se combinan con AND. Vacíos o solo espacios = sin filtro.
+- `%` y `_` se buscan literalmente (se escapan) y el texto viaja como parámetro.
+- La paginación la hace PostgreSQL (`LIMIT`/`OFFSET`); `tamanio` sigue siendo 1 a 100
+  (`422` si se excede). Sin filtros la consulta es la misma de antes.
+
+```text
+200 {"pagina": 1, "tamanio": 20, "clientes": [{"id_cliente": 3, "nombre_o_razon_social": "Garcia-Valdez",
+     "num_documento": "30365640427", ...}]}
+```
+
+### Edición de vinos
+
+`PUT /vinos/{cod}` recibe la ficha (los mismos campos de antes) y dos campos opcionales:
+
+```json
+{"nombre_comercial": "Malbec Clásico", "tipo": "tinto", "anada": 2016, "presentacion_ml": 750,
+ "graduacion_alcoholica": 14.0, "precio_venta": 29500, "id_bodega": 3,
+ "cepas": [{"id_cepa": 1, "porcentaje_corte": 70}, {"id_cepa": 2, "porcentaje_corte": 30}],
+ "maridajes": [1, 2]}
+```
+
+| Campo | Omitido o `null` | Lista con elementos | Lista vacía `[]` |
+|---|---|---|---|
+| `cepas` | La composición no se toca | Reemplaza la composición completa | Quita la composición: la regla RN-05 la rechaza (409) si el vino tenía cepas |
+| `maridajes` (ids) | Los maridajes no se tocan | Reemplaza los maridajes | Quita todos los maridajes |
+
+Todo ocurre en una transacción (ficha, composición y maridajes): si algo falla no queda
+ningún cambio. La API no valida la suma de porcentajes; la controla el trigger diferido
+de la base al hacer COMMIT y su mensaje llega tal cual:
+
+| Situación | HTTP | Cuerpo |
+|---|---|---|
+| Correcto | 200 | Ficha completa (igual que `GET /vinos/{cod}`) |
+| Vino inexistente | 404 | `{"detail": "Vino no encontrado"}` |
+| Porcentajes que no suman 100 | 409 | `{"error": "Los porcentajes de corte del vino 60 suman 90.00 y deben sumar 100 (RN-05)", "sqlstate": "P0001"}` |
+| Cepa o maridaje inexistente | 409 | `{"error": "El dato referenciado no existe o tiene registros relacionados", "sqlstate": "23503"}` |
+| Cepa o maridaje repetido | 409 | `{"error": "Ya existe un registro con esos datos", "sqlstate": "23505"}` |
+| CHECK violado (por ejemplo graduación) | 422 | `{"error": "Un valor no cumple una restricción de la base", "sqlstate": "23514"}` |
+| Cuerpo con formato inválido | 422 | `{"detail": [...]}` (validación de FastAPI) |
 
 ### Errores
 
@@ -149,7 +231,9 @@ python -m venv .venv
 
 O dentro del contenedor: `docker exec bodegas_atuel_api python -m pytest -v`.
 
-Son 33 pruebas y **ninguna necesita PostgreSQL**: reemplazan la conexión por una
+Son 56 pruebas (`tests/test_api.py` de la Etapa 6 y `tests/test_etapa7.py` con los
+catálogos, el detalle de transferencias, la búsqueda de clientes y la edición de vinos)
+y **ninguna necesita PostgreSQL**: reemplazan la conexión por una
 conexión falsa (`api/tests/conftest.py`) que registra el SQL enviado y simula las
 respuestas de la base. Verifican rutas, paginación, filtros, parámetros SQL (incluida
 una inyección SQL que se trata como texto), transacciones, respuestas 404 y la

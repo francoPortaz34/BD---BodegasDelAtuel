@@ -20,11 +20,29 @@ SELECT_CLIENTE = """
 """
 
 
-def listar_clientes(conn, limite, desde):
-    return conn.execute(SELECT_CLIENTE + """
+def patron_parcial(texto):
+    """Patrón ILIKE de coincidencia parcial. Se escapan los comodines de LIKE
+    (%, _ y \\) para que el texto del usuario se busque literalmente."""
+    escapado = texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return f"%{escapado}%"
+
+
+def listar_clientes(conn, limite, desde, nombre=None, documento=None):
+    # Filtros opcionales y combinables (AND). Las condiciones son texto fijo del
+    # código; lo que escribe el usuario viaja siempre como parámetro.
+    # La paginación (LIMIT/OFFSET) la hace PostgreSQL: nunca se traen todos los clientes.
+    condiciones, parametros = [], []
+    if nombre:
+        condiciones.append("c.nombre_o_razon_social ILIKE %s")
+        parametros.append(patron_parcial(nombre))
+    if documento:
+        condiciones.append("c.num_documento ILIKE %s")
+        parametros.append(patron_parcial(documento))
+    where = (" WHERE " + " AND ".join(condiciones)) if condiciones else ""
+    return conn.execute(SELECT_CLIENTE + where + """
         ORDER BY c.id_cliente
         LIMIT %s OFFSET %s
-    """, (limite, desde)).fetchall()
+    """, (*parametros, limite, desde)).fetchall()
 
 
 def obtener_cliente(conn, id_cliente):

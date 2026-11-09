@@ -72,6 +72,7 @@ def insertar_corte(conn, id_vino, id_cepa, porcentaje_corte):
 
 
 def actualizar_vino(conn, cod_vino, vino):
+    """Actualiza la ficha. Devuelve el id_vino, o None si el vino no existe."""
     # Si cambia precio_venta, el trigger trg_vino_auditoria_precio registra la auditoría
     fila = conn.execute("""
         UPDATE vino
@@ -81,7 +82,25 @@ def actualizar_vino(conn, cod_vino, vino):
         WHERE cod_vino = %(cod_vino)s
         RETURNING id_vino
     """, {**vino, "cod_vino": cod_vino}).fetchone()
-    return fila is not None
+    return fila["id_vino"] if fila is not None else None
+
+
+def borrar_cortes(conn, id_vino):
+    # Quita la composición actual para reemplazarla. La suma 100 (RN-05) la
+    # controla el trigger diferido al COMMIT, con la composición final.
+    conn.execute("DELETE FROM vino_cepa WHERE id_vino = %s", (id_vino,))
+
+
+def borrar_maridajes(conn, id_vino):
+    conn.execute("DELETE FROM vino_maridaje WHERE id_vino = %s", (id_vino,))
+
+
+def insertar_maridaje(conn, id_vino, id_maridaje):
+    # Maridaje inexistente -> FK (23503); repetido -> PK (23505)
+    conn.execute("""
+        INSERT INTO vino_maridaje (id_vino, id_maridaje)
+        VALUES (%s, %s)
+    """, (id_vino, id_maridaje))
 
 
 def eliminar_vino(conn, cod_vino):

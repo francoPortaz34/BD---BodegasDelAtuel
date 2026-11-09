@@ -36,9 +36,14 @@ def buscar(conn, id_cliente):
 
 
 @router.get("")
-def listar(pagina: int = Query(1, ge=1), tamanio: int = Query(20, ge=1, le=100)):
+def listar(nombre: str | None = Query(None, description="Parte del nombre o razón social (sin distinguir mayúsculas)"),
+           documento: str | None = Query(None, description="Parte del número de documento"),
+           pagina: int = Query(1, ge=1), tamanio: int = Query(20, ge=1, le=100)):
+    # Un filtro vacío o con solo espacios no filtra
+    nombre = nombre.strip() if nombre else None
+    documento = documento.strip() if documento else None
     with pool.connection() as conn:
-        clientes = datos.listar_clientes(conn, tamanio, (pagina - 1) * tamanio)
+        clientes = datos.listar_clientes(conn, tamanio, (pagina - 1) * tamanio, nombre, documento)
     return {"pagina": pagina, "tamanio": tamanio, "clientes": clientes}
 
 
