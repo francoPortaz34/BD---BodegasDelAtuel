@@ -15,6 +15,7 @@
 #   docker compose up -d
 #   docker compose ps           (esperar estado "healthy")
 #   API: http://127.0.0.1:8000/docs
+#   Front: http://127.0.0.1:5173
 
 name: bodegas-atuel
 
@@ -72,6 +73,22 @@ services:
       API_DB_PASSWORD: ${API_DB_PASSWORD:-}
     ports:
       - "127.0.0.1:8000:8000"
+
+  # Front (Etapa 7): front/servidor.py sirve los archivos estáticos y reenvía
+  # /api/* a la API por la red interna de Docker (el navegador usa un único
+  # origen y la API no necesita CORS).
+  front:
+    build: ./front
+    container_name: bodegas_atuel_front
+    restart: unless-stopped
+    depends_on:
+      - api                          # la API no define healthcheck: espera a que arranque
+    environment:
+      API_URL: ${FRONT_API_URL:-http://api:8000}   # nombre del servicio, nunca localhost
+      FRONT_HOST: 0.0.0.0            # escuchar fuera del contenedor
+      FRONT_PORT: 5173
+    ports:
+      - "127.0.0.1:${FRONT_PORT:-5173}:5173"
 
 volumes:
   pgdata:
