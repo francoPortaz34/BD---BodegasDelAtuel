@@ -478,3 +478,49 @@ fieldset:disabled .opcion { cursor: not-allowed; opacity: .7; }
   .buscador__fila select { grid-column: 1 / -1; }
   .renglon__campos { grid-template-columns: minmax(0, 1fr) 80px 32px; }
 }
+
+/* ---------- Transferencias ---------- */
+
+.etiqueta--estado-en_confeccion { background: var(--dorado-100); color: #7a5a22; }
+.etiqueta--estado-terminado { background: #eaf1f5; color: #3d5f73; }
+.etiqueta--estado-procesado { background: #edf7f0; color: var(--ok); }
+
+.campo__fijo { margin: 0; padding: 7px 10px; border: 1px dashed var(--borde); border-radius: 8px; background: var(--superficie-2); }
+
+.pasos { display: flex; gap: 8px; margin: 0; padding: 0; list-style: none; flex-wrap: wrap; }
+.pasos__paso {
+  display: flex; align-items: center; gap: 8px; flex: 1 1 150px; padding: 8px 12px;
+  border: 1px solid var(--borde); border-radius: 8px; color: var(--texto-suave); font-size: 14px;
+}
+.pasos__numero {
+  display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; flex: none;
+  border-radius: 50%; background: var(--superficie-2); font-size: 12px; font-weight: 700;
+}
+.pasos__paso--hecho { color: var(--ok); border-color: #bfe0cb; }
+.pasos__paso--hecho .pasos__numero { background: #edf7f0; }
+.pasos__paso--actual { color: var(--bordo-700); border-color: var(--bordo-600); background: var(--bordo-100); font-weight: 600; }
+.pasos__paso--actual .pasos__numero { background: var(--bordo-700); color: #fff; }
+
+.detalle__avisos:empty { display: none; }
+.renglon__campos--agregar { grid-template-columns: minmax(0, 1fr) 130px auto; }
+.agregar-renglon .renglon__info, .agregar-renglon .campo__error { display: block; margin-top: 4px; }
+.agregar-renglon .campo__error:empty, .agregar-renglon .renglon__info:empty { display: none; }
+.agregar-renglon .formulario__resultado, .accion + .formulario__resultado { margin-top: 12px; }
+
+.confirmacion { padding: 12px 14px; border: 1px solid #ecd3a8; border-radius: 8px; background: #fdf5e7; }
+.confirmacion__texto { margin: 0 0 6px; color: var(--aviso); font-weight: 500; }
+.confirmacion__botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+/* ---------- Tablero ---------- */
+
+.reporte__resultado { min-height: 80px; }
+.subreporte { border-top: 1px solid var(--borde); }
+.subreporte__titulo { margin: 0; padding: 12px 18px 8px; font-size: 14px; color: var(--bordo-900); }
+.subreporte .estado { padding: 14px 18px; }
+.trazabilidad__vino { border-top: 1px solid var(--borde); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.trazabilidad__vino .seccion__ayuda { margin: 0; }
+
+@media (max-width: 820px) {
+  .renglon__campos--agregar { grid-template-columns: minmax(0, 1fr) 90px; }
+  .renglon__campos--agregar .boton { grid-column: 1 / -1; }
+}

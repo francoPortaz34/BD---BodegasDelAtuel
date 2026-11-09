@@ -4,6 +4,9 @@
 import { vistaCatalogos } from "./vistas/catalogos.js";
 import { vistaInicio } from "./vistas/inicio.js";
 import { vistaNoEncontrada, vistaPendiente } from "./vistas/pendiente.js";
+import { vistaTablero } from "./vistas/tablero.js";
+import { vistaDetalleTransferencia } from "./vistas/transferencia-detalle.js";
+import { vistaNuevaTransferencia, vistaTransferencias } from "./vistas/transferencias.js";
 import { vistaDetalleVenta } from "./vistas/venta-detalle.js";
 import { vistaNuevaVenta } from "./vistas/venta-nueva.js";
 import { vistaVentas } from "./vistas/ventas.js";
@@ -35,12 +38,17 @@ export const rutas = [
   { ruta: "/ventas/nueva", titulo: "Nueva venta", vista: vistaNuevaVenta },
   { ruta: "/ventas/:nro", titulo: "Detalle de la venta", vista: vistaDetalleVenta },
   {
-    ruta: "/transferencias", titulo: "Transferencias", menu: "Transferencias", icono: "transferencias", subetapa: 5,
-    descripcion: "Alta, carga de renglones y cambio de estado de las transferencias del depósito a las salas.",
+    ruta: "/transferencias", titulo: "Transferencias", menu: "Transferencias", icono: "transferencias",
+    descripcion: "Transferencias del depósito central a las salas: alta, carga de vinos, terminar y procesar.",
+    vista: vistaTransferencias,
   },
+  // "/transferencias/nueva" va antes que "/transferencias/:nro"
+  { ruta: "/transferencias/nueva", titulo: "Nueva transferencia", vista: vistaNuevaTransferencia },
+  { ruta: "/transferencias/:nro", titulo: "Detalle de la transferencia", vista: vistaDetalleTransferencia },
   {
-    ruta: "/tablero", titulo: "Tablero", menu: "Tablero", icono: "tablero", subetapa: 5,
-    descripcion: "Ranking de vinos más vendidos, ventas por sala del último trimestre y vinos sin stock por sala.",
+    ruta: "/tablero", titulo: "Tablero", menu: "Tablero", icono: "tablero",
+    descripcion: "Vinos más vendidos, ventas por sala del último trimestre, transportista más activo, vinos sin stock por sala y trazabilidad.",
+    vista: vistaTablero,
   },
   {
     ruta: "/catalogos", titulo: "Catálogos", menu: "Catálogos", icono: "catalogos",

@@ -46,10 +46,24 @@ front/
     │   ├── catalogos.js  Salas, bodegas, cepas y maridajes (con caché en memoria)
     │   ├── vinos.js      GET/POST /vinos, GET/PUT /vinos/{cod}
     │   ├── ventas.js     POST /comprobantes, GET /comprobantes/{nro}
-    │   └── clientes.js   GET /clientes (búsqueda paginada)
-    ├── componentes/      Encabezado, navegación, estados, tarjeta, tabla, paginación, campos y avisos
-    └── vistas/           Inicio, catálogos, vinos (catálogo, detalle, alta, edición), ventas, provisorias
+    │   ├── clientes.js   GET /clientes (búsqueda paginada)
+    │   ├── transferencias.js  GET/POST /transferencias, renglones, terminar, procesar
+    │   └── reportes.js   GET /reportes/*
+    ├── componentes/      Encabezado, navegación, estados, tarjeta, tabla, paginación, campos, avisos, selector de vino
+    └── vistas/           Inicio, catálogos, vinos, ventas, transferencias, tablero, provisorias
 ```
+
+## Pantallas y rutas
+
+| Ruta | Pantalla |
+|---|---|
+| `#/` | Inicio: resumen de catálogos y accesos |
+| `#/vinos` · `#/vinos/{cod}` | Catálogo con filtros y paginación · detalle |
+| `#/vinos/nuevo` · `#/vinos/{cod}/editar` | Alta · edición (ficha, cepas y maridajes) |
+| `#/ventas` · `#/ventas/nueva` · `#/ventas/{nro}` | Consulta por número · nueva venta · detalle |
+| `#/transferencias` · `#/transferencias/nueva` · `#/transferencias/{nro}` | Consulta por número · nueva · detalle y acciones según el estado |
+| `#/tablero` | Reportes |
+| `#/catalogos` | Salas, bodegas, cepas y maridajes |
 
 ## Catálogo de vinos (`#/vinos`)
 
@@ -95,6 +109,57 @@ front/
   RN-06, RN-08, RN-09); el front no calcula ni decide nada de eso. Si la base rechaza la venta
   (por ejemplo "Stock insuficiente… (RN-09)"), se muestra su mensaje y no se registra nada.
 - **Detalle** (`#/ventas/{nro}`): datos del comprobante y renglones con los importes de la base.
+
+## Transferencias (`#/transferencias`)
+
+- Son envíos del **depósito central a una sala** (`id_sala` es el destino). La API **no** modela
+  transferencias entre salas, así que no hay sala de origen para elegir.
+- Documento con estados `en_confeccion → terminado → procesado`. El detalle muestra solo las acciones
+  del estado actual: **agregar vino** (de a uno, `POST /transferencias/{nro}/renglones`) y **terminar**
+  en confección; **procesar** (mueve el stock en la base, `sp_procesar_transferencia`) si está
+  terminada; ninguna si está procesada. Terminar y procesar piden confirmación en la propia página.
+- **Nueva** (`#/transferencias/nueva`): número de solicitud (la API no lo asigna) y sala de destino;
+  la fecha la fija la base (RN-11). Después se agregan los vinos en el detalle.
+- El front no calcula ni mueve stock: si no alcanza, la base rechaza el procesamiento con su
+  mensaje ("Stock insuficiente en el depósito central… (RN-09/RN-11)") y no cambia nada.
+
+## Tablero (`#/tablero`)
+
+Cada bloque consulta su endpoint, con estados de carga, error (Reintentar) y sin datos, y un botón
+para volver a consultarlo. Las cifras vienen de la base; el front solo les da formato.
+
+| Bloque | Endpoint |
+|---|---|
+| Vinos más vendidos (top 10 por botellas) | `GET /reportes/top-vinos` |
+| Ventas por sala del último trimestre | `GET /reportes/ventas-por-sala` |
+| Transportista más activo del último mes | `GET /reportes/transportista-activo` |
+| Vinos sin stock en una sala (con stock en depósito) | `GET /reportes/vinos-sin-stock?sala={id}` |
+| Trazabilidad de un vino (ingresos, transferencias, ventas) | `GET /reportes/trazabilidad/{cod}` |
+
+## Limitaciones de la API (no disponibles en el front)
+
+- **No hay listado de ventas ni de transferencias** (`GET /comprobantes`, `GET /transferencias`):
+  se consultan por número. Las pantallas muestran además las registradas/gestionadas *desde este
+  navegador* (`localStorage`), aclarando que no es el listado completo.
+- **No hay transferencias entre salas**: solo depósito central → sala.
+- **No se pueden quitar ni modificar renglones** de una transferencia, ni eliminar ventas o vinos
+  desde el front (fuera de alcance).
+- `POST /vinos` no admite maridajes: el alta los guarda con un `PUT` posterior (no atómico).
+- Ningún endpoint asigna el número de comprobante ni el de solicitud: se ingresan a mano.
+
+## Pruebas realizadas
+
+Pruebas de navegador (Chrome headless controlado por CDP) contra la API real, para las subetapas 2 a 5:
+
+- **Reales (solo lectura):** catálogo, filtros, paginación y detalle de vinos; consulta de
+  comprobantes y transferencias existentes; todos los reportes del tablero (comparados con la
+  respuesta de la API); búsqueda de clientes; catálogos; estados de error (API caída) y 404.
+- **Escrituras reales:** solo en la subetapa 3 (vino de prueba `PRUEBA-S3-001`, autorizado).
+  En las subetapas 4 y 5 **no** se escribió nada: todo POST/PUT/DELETE se interceptó en el
+  navegador antes de salir a la red (verificado también con CDP: 0 escrituras enviadas).
+- **Simuladas:** respuestas de registro de ventas y del circuito de transferencias
+  (crear, agregar vino, terminar, procesar, rechazo por stock, número repetido, falla de red)
+  y un reporte vacío. Validan la interfaz, no la base de datos.
 
 ## Errores
 
