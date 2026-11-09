@@ -1,15 +1,20 @@
-# Entorno de desarrollo de Bodegas del Atuel: PostgreSQL 16.
+# Entorno de desarrollo de Bodegas del Atuel: PostgreSQL 16 y la API REST (Etapa 6).
 #
-# Base DESECHABLE para desarrollo y pruebas. Las migraciones NO se ejecutan
-# automáticamente: db/ se monta en /db en modo solo lectura (no en
-# /docker-entrypoint-initdb.d) y se aplican a mano con psql.
+# Base DESECHABLE para desarrollo y pruebas. db/ se monta en /db en modo
+# solo lectura.
+# Inicialización automática: la PRIMERA vez (volumen vacío) PostgreSQL
+# ejecuta db/init/01_inicializar.sh, que crea los roles, restaura
+# dump_completo.sql.gz, aplica 007_roles.sql y asigna la contraseña de
+# bodegas_api (API_DB_PASSWORD del .env). Si el volumen ya tiene datos, el
+# script NO se ejecuta y la base queda como está.
 # tests/ se monta en /tests (solo lectura) para correr las pruebas SQL:
 #   docker exec bodegas_atuel_db sh /tests/run_etapa2.sh
 #
 # Uso:
-#   cp .env.example .env        (y completar POSTGRES_PASSWORD)
+#   cp .env.example .env        (y completar POSTGRES_PASSWORD y API_DB_PASSWORD)
 #   docker compose up -d
 #   docker compose ps           (esperar estado "healthy")
+#   API: http://127.0.0.1:8000/docs
 
 name: bodegas-atuel
 
@@ -25,6 +30,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-bodegas_atuel}
       POSTGRES_USER: ${POSTGRES_USER:-bodegas_admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definir POSTGRES_PASSWORD en .env (ver .env.example)}
+      # Solo la usa db/init/01_inicializar.sh en el primer arranque
+      API_DB_PASSWORD: ${API_DB_PASSWORD:-}
       TZ: America/Argentina/Mendoza
       PGTZ: America/Argentina/Mendoza
     ports:
@@ -35,12 +42,36 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./db:/db:ro
       - ./tests:/tests:ro
+      # Inicialización automática (solo con el volumen vacío)
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./dump_completo.sql.gz:/dump/dump_completo.sql.gz:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      # -h 127.0.0.1: durante la inicialización PostgreSQL corre un servidor
+      # temporal solo por socket local; por TCP responde recién el servidor
+      # definitivo, así la API no arranca a mitad de la restauración.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 10s
+      # Margen para restaurar el dump la primera vez; si responde antes, queda healthy antes.
+      start_period: 5m
+
+  # API REST (Etapa 6). Se conecta al servicio "db" con el rol bodegas_api.
+  api:
+    build: ./api
+    container_name: bodegas_atuel_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy   # espera a que PostgreSQL responda
+    environment:
+      API_DB_HOST: db                # nombre del servicio, no localhost
+      API_DB_PORT: 5432              # puerto interno de la red de Docker
+      API_DB_NAME: ${POSTGRES_DB:-bodegas_atuel}
+      API_DB_USER: ${API_DB_USER:-bodegas_api}
+      API_DB_PASSWORD: ${API_DB_PASSWORD:-}
+    ports:
+      - "127.0.0.1:8000:8000"
 
 volumes:
   pgdata:

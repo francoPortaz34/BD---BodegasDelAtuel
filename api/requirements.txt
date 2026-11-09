@@ -1,0 +1,9 @@
+# Dependencias de la API (Etapa 6). Versiones fijas para que la instalación sea reproducible.
+fastapi==0.162.2
+uvicorn==0.54.0
+psycopg[binary]==3.2.3
+psycopg-pool==3.3.3
+
+# Pruebas automáticas (httpx lo usa el TestClient de FastAPI)
+pytest==9.2.0
+httpx==0.28.1
