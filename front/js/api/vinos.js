@@ -27,3 +27,27 @@ export function listarVinos({ tipo, cepa, bodega, anada, pagina, tamanio } = {},
 export function obtenerVino(cod, { signal } = {}) {
   return api.get(`/vinos/${encodeURIComponent(cod)}`, { signal });
 }
+
+/** Presentaciones admitidas por la base (CHECK ck_vino_presentacion, 002_constraints.sql). */
+export const PRESENTACIONES_ML = [187, 375, 750, 1500, 3000];
+
+/**
+ * POST /vinos (201) -> ficha completa del vino creado (como GET /vinos/{cod}).
+ * Cuerpo (VinoNuevo): cod_vino, nombre_comercial, tipo, anada, presentacion_ml,
+ * graduacion_alcoholica, precio_venta, id_bodega, cepas [{id_cepa, porcentaje_corte}].
+ * NO admite maridajes: se asignan después con modificarVino().
+ * La suma 100 de los cortes (RN-05) la controla la base al COMMIT.
+ */
+export function crearVino(vino, { signal } = {}) {
+  return api.post("/vinos", vino, { signal });
+}
+
+/**
+ * PUT /vinos/{cod} -> ficha completa actualizada. El código no se modifica.
+ * Cuerpo (VinoEdicion): los mismos campos de la ficha (todos obligatorios) y,
+ * opcionales, cepas [{id_cepa, porcentaje_corte}] y maridajes [id_maridaje].
+ * Una lista enviada REEMPLAZA la actual; omitida, no se toca. Todo en una transacción.
+ */
+export function modificarVino(cod, vino, { signal } = {}) {
+  return api.put(`/vinos/${encodeURIComponent(cod)}`, vino, { signal });
+}

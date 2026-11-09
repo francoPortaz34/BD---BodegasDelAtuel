@@ -52,6 +52,17 @@ export const hashDetalle = (cod, busqueda) => {
   return `#/vinos/${encodeURIComponent(cod)}${texto ? `?${texto}` : ""}`;
 };
 
+/** Alta y edición; también llevan la búsqueda para volver a ella al cancelar o guardar. */
+export const hashAlta = (busqueda) => {
+  const texto = escribirBusqueda(busqueda);
+  return `#/vinos/nuevo${texto ? `?${texto}` : ""}`;
+};
+
+export const hashEdicion = (cod, busqueda) => {
+  const texto = escribirBusqueda(busqueda);
+  return `#/vinos/${encodeURIComponent(cod)}/editar${texto ? `?${texto}` : ""}`;
+};
+
 export const hayFiltros = (b) => Boolean(b.tipo || b.cepa || b.bodega !== "" || b.anada !== "");
 
 // ---------- Formato (solo presentación) ----------

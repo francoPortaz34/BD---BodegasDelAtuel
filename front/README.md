@@ -44,9 +44,9 @@ front/
     ├── api/
     │   ├── cliente.js    Cliente HTTP único y ApiError
     │   ├── catalogos.js  Salas, bodegas, cepas y maridajes (con caché en memoria)
-    │   └── vinos.js      GET /vinos (filtros y paginación) y GET /vinos/{cod}
-    ├── componentes/      Encabezado, navegación, estados (carga/error/vacío), tarjeta, tabla y paginación
-    └── vistas/           Inicio, catálogos, catálogo y detalle de vinos, pantallas provisorias
+    │   └── vinos.js      GET/POST /vinos, GET/PUT /vinos/{cod}
+    ├── componentes/      Encabezado, navegación, estados, tarjeta, tabla, paginación, campos y avisos
+    └── vistas/           Inicio, catálogos, catálogo/detalle/alta/edición de vinos, pantallas provisorias
 ```
 
 ## Catálogo de vinos (`#/vinos`)
@@ -62,6 +62,22 @@ front/
   Una página vacía (p. ej. escrita a mano) ofrece volver a la anterior o a la primera.
 - **Detalle** (`#/vinos/{cod}?...`): ficha, composición de cepas y maridajes tal como los
   devuelve `GET /vinos/{cod}`. *Volver al catálogo* restaura filtros y página. 404 → "Vino no encontrado".
+
+## Alta y edición de vinos
+
+- **Alta** (`#/vinos/nuevo`, botón *Nuevo vino* del catálogo) y **edición** (`#/vinos/{cod}/editar`,
+  botón *Editar* del detalle). Bodegas, cepas y maridajes se cargan de la API; tipo y presentación
+  usan los valores admitidos por la base (ENUM `tipo_vino` y CHECK `ck_vino_presentacion`).
+- **Cepas**: filas con cepa y porcentaje; una cepa elegida no se puede repetir. La suma 100 (RN-05)
+  **no** se calcula en el front: la controla la base y su mensaje se muestra tal cual.
+- **Maridajes**: casillas (sin duplicados). `POST /vinos` no los admite: en el alta, si se eligieron,
+  se envía después `PUT /vinos/{cod}` con la misma ficha y los maridajes. No es atómico: si ese PUT
+  falla, el vino queda registrado sin maridajes y se ofrece completarlos desde *Editar*.
+- **Edición**: el código no se modifica (va en la URL). Se envían la ficha y las listas completas
+  de cepas y maridajes, que la API reemplaza en una sola transacción.
+- Validación de formato antes de enviar (obligatorios, largos, rangos de los CHECK de `vino`);
+  el botón se deshabilita mientras se guarda (sin envíos duplicados). Al guardar se vuelve al
+  detalle con un aviso de éxito, conservando la búsqueda del catálogo.
 
 ## Errores
 

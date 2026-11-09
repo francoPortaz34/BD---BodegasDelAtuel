@@ -40,6 +40,10 @@ const ICONOS = {
   anterior: '<path d="m15 5-7 7 7 7"/>',
   siguiente: '<path d="m9 5 7 7-7 7"/>',
   filtro: '<path d="M4 5h16l-6 7.5V19l-4 1.5v-8Z"/>',
+  mas: '<path d="M12 5v14M5 12h14"/>',
+  quitar: '<path d="M6 6l12 12M18 6 6 18"/>',
+  editar: '<path d="M4 20h4L19 9l-4-4L4 16Z"/><path d="m13.5 6.5 4 4"/>',
+  ok: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 };
 
 export function icono(nombre, clase = "icono") {

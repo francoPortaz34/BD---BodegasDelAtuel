@@ -2,10 +2,11 @@
 // tal como los devuelve GET /vinos/{cod}. La dirección trae la búsqueda del
 // catálogo (?tipo=...&pagina=...) para volver exactamente a ella.
 import { obtenerVino } from "../api/vinos.js";
+import { tomarAviso } from "../componentes/avisos.js";
 import { encabezadoPagina, tabla, tarjeta } from "../componentes/contenido.js";
 import { cargando, mensajeError, vacio } from "../componentes/estados.js";
 import { h, icono } from "../dom.js";
-import { etiquetaTipo, formatoDecimal, formatoPrecio, hashCatalogo, leerBusqueda } from "./vinos-comun.js";
+import { etiquetaTipo, formatoDecimal, formatoPrecio, hashCatalogo, hashEdicion, leerBusqueda } from "./vinos-comun.js";
 
 function ficha(vino) {
   const dato = (nombre, valor, clase) => [
@@ -36,10 +37,16 @@ export function vistaDetalleVino(contenedor, { params, consulta, signal }) {
   const volver = () => h("a", { class: "boton boton--secundario", href: hashCatalogo(leerBusqueda(consulta)) },
     icono("anterior"), "Volver al catálogo");
 
-  const encabezado = (titulo, descripcion) => encabezadoPagina({ titulo, descripcion, acciones: volver() });
+  // "Editar" solo aparece cuando el vino se cargó (no tiene sentido con un 404)
+  const editar = () => h("a", { class: "boton", href: hashEdicion(cod, leerBusqueda(consulta)) },
+    icono("editar"), "Editar");
+  const encabezado = (titulo, descripcion, conEditar = false) =>
+    encabezadoPagina({ titulo, descripcion, acciones: [volver(), conEditar && editar()] });
   let cabecera = encabezado("Detalle del vino", `Código ${cod}`);
   const cuerpo = h("div", { class: "detalle" });
-  contenedor.replaceChildren(cabecera, cuerpo);
+  // Aviso que deja el alta o la edición al guardar ("Cambios guardados…")
+  const avisoGuardado = tomarAviso();
+  contenedor.replaceChildren(...[cabecera, avisoGuardado, cuerpo].filter(Boolean));
 
   async function cargar() {
     cuerpo.replaceChildren(cargando("Cargando el vino…"));
@@ -59,7 +66,7 @@ export function vistaDetalleVino(contenedor, { params, consulta, signal }) {
 
     document.title = `${vino.nombre_comercial ?? cod} · Bodegas del Atuel`;
     const nueva = encabezado(vino.nombre_comercial ?? "Detalle del vino",
-      [vino.cod_vino, vino.bodega].filter(Boolean).join(" · "));
+      [vino.cod_vino, vino.bodega].filter(Boolean).join(" · "), true);
     cabecera.replaceWith(nueva);
     cabecera = nueva;
 

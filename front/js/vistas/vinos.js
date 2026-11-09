@@ -8,9 +8,10 @@ import { listarVinos, TIPOS_VINO } from "../api/vinos.js";
 import { encabezadoPagina, tabla, tarjeta } from "../componentes/contenido.js";
 import { cargando, mensajeError, vacio } from "../componentes/estados.js";
 import { crearPaginacion } from "../componentes/paginacion.js";
+import { campo } from "../componentes/formulario.js";
 import { h, icono } from "../dom.js";
 import {
-  capital, etiquetaTipo, formatoDecimal, formatoPrecio, hashCatalogo, hashDetalle,
+  capital, etiquetaTipo, formatoDecimal, formatoPrecio, hashAlta, hashCatalogo, hashDetalle,
   hayFiltros, leerBusqueda, TAMANIOS,
 } from "./vinos-comun.js";
 
@@ -22,11 +23,6 @@ function navegar(busqueda, recargar) {
 }
 
 // ---------- Filtros ----------
-
-function campo(etiquetaTexto, control, ayuda) {
-  return h("label", { class: "campo" },
-    h("span", { class: "campo__etiqueta" }, etiquetaTexto), control, ayuda);
-}
 
 /**
  * Selector cargado desde un catálogo de la API. Mientras carga queda deshabilitado
@@ -185,6 +181,7 @@ export function vistaVinos(contenedor, { consulta, signal }) {
     encabezadoPagina({
       titulo: "Catálogo de vinos",
       descripcion: "Consultá los vinos registrados. Filtrá por tipo, cepa, bodega y añada, y abrí el detalle para ver la composición y los maridajes.",
+      acciones: h("a", { class: "boton", href: hashAlta(busqueda) }, icono("mas"), "Nuevo vino"),
     }),
     crearFiltros(busqueda, { alAplicar: ir, alLimpiar: limpiar, signal }),
     filtrosActivos(busqueda, signal),
