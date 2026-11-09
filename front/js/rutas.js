@@ -4,6 +4,8 @@
 import { vistaCatalogos } from "./vistas/catalogos.js";
 import { vistaInicio } from "./vistas/inicio.js";
 import { vistaNoEncontrada, vistaPendiente } from "./vistas/pendiente.js";
+import { vistaDetalleVino } from "./vistas/vino-detalle.js";
+import { vistaVinos } from "./vistas/vinos.js";
 
 export const rutas = [
   {
@@ -11,9 +13,12 @@ export const rutas = [
     vista: vistaInicio,
   },
   {
-    ruta: "/vinos", titulo: "Catálogo de vinos", menu: "Vinos", icono: "vinos", subetapa: 2,
-    descripcion: "Listado paginado con filtros por tipo, cepa, bodega y añada; detalle con composición y maridajes. Alta y edición en la subetapa 3.",
+    ruta: "/vinos", titulo: "Catálogo de vinos", menu: "Vinos", icono: "vinos",
+    descripcion: "Listado paginado con filtros por tipo, cepa, bodega y añada; detalle con composición y maridajes.",
+    vista: vistaVinos,
   },
+  // Detalle (sin entrada en el menú: la navegación marca "Vinos" como activa)
+  { ruta: "/vinos/:cod", titulo: "Detalle del vino", vista: vistaDetalleVino },
   {
     ruta: "/ventas", titulo: "Ventas", menu: "Ventas", icono: "ventas", subetapa: 4,
     descripcion: "Nueva venta: cliente, sala y vinos, con el total calculado por la base.",

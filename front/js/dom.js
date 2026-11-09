@@ -37,6 +37,9 @@ const ICONOS = {
   alerta: '<path d="M12 4 2.5 20h19Z"/><path d="M12 10v4.5M12 17.5v.5"/>',
   vacio: '<path d="M3 13h5l1.5 2.5h5L16 13h5"/><path d="M5.5 6h13L21 13v6H3v-6Z"/>',
   reloj: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  anterior: '<path d="m15 5-7 7 7 7"/>',
+  siguiente: '<path d="m9 5 7 7-7 7"/>',
+  filtro: '<path d="M4 5h16l-6 7.5V19l-4 1.5v-8Z"/>',
 };
 
 export function icono(nombre, clase = "icono") {

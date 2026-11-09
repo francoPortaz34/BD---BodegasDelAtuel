@@ -43,10 +43,25 @@ front/
     ├── dom.js            h() para crear elementos sin innerHTML, íconos
     ├── api/
     │   ├── cliente.js    Cliente HTTP único y ApiError
-    │   └── catalogos.js  Salas, bodegas, cepas y maridajes (con caché en memoria)
-    ├── componentes/      Encabezado, navegación, estados (carga/error/vacío), tarjeta y tabla
-    └── vistas/           Inicio, catálogos y pantallas provisorias
+    │   ├── catalogos.js  Salas, bodegas, cepas y maridajes (con caché en memoria)
+    │   └── vinos.js      GET /vinos (filtros y paginación) y GET /vinos/{cod}
+    ├── componentes/      Encabezado, navegación, estados (carga/error/vacío), tarjeta, tabla y paginación
+    └── vistas/           Inicio, catálogos, catálogo y detalle de vinos, pantallas provisorias
 ```
+
+## Catálogo de vinos (`#/vinos`)
+
+- **Filtros** (se envían a la API solo al pulsar *Aplicar filtros*): tipo (`tinto`, `blanco`,
+  `rosado`, `espumante`), cepa (por **nombre**, opciones de `GET /cepas`), bodega (por
+  **`id_bodega`**, opciones de `GET /bodegas`) y añada. *Limpiar filtros* los quita todos.
+- **Estado en la dirección**: `#/vinos?tipo=tinto&cepa=Malbec&bodega=3&anada=2020&pagina=2&tamanio=20`.
+  Cambiar un filtro vuelve a la página 1; cambiar de página conserva los filtros.
+- **Paginación** con `pagina` y `tamanio` (20 por defecto). La API no informa el total: si la
+  página llega incompleta es la última; si llega completa, se consulta un único registro
+  (`tamanio=1`, `pagina=pagina*tamanio+1`, es decir el OFFSET siguiente) para saber si hay más.
+  Una página vacía (p. ej. escrita a mano) ofrece volver a la anterior o a la primera.
+- **Detalle** (`#/vinos/{cod}?...`): ficha, composición de cepas y maridajes tal como los
+  devuelve `GET /vinos/{cod}`. *Volver al catálogo* restaura filtros y página. 404 → "Vino no encontrado".
 
 ## Errores
 
