@@ -4,6 +4,9 @@
 import { vistaCatalogos } from "./vistas/catalogos.js";
 import { vistaInicio } from "./vistas/inicio.js";
 import { vistaNoEncontrada, vistaPendiente } from "./vistas/pendiente.js";
+import { vistaDetalleVenta } from "./vistas/venta-detalle.js";
+import { vistaNuevaVenta } from "./vistas/venta-nueva.js";
+import { vistaVentas } from "./vistas/ventas.js";
 import { vistaDetalleVino } from "./vistas/vino-detalle.js";
 import { vistaAltaVino, vistaEdicionVino } from "./vistas/vino-formulario.js";
 import { vistaVinos } from "./vistas/vinos.js";
@@ -24,9 +27,13 @@ export const rutas = [
   { ruta: "/vinos/:cod/editar", titulo: "Editar vino", vista: vistaEdicionVino },
   { ruta: "/vinos/:cod", titulo: "Detalle del vino", vista: vistaDetalleVino },
   {
-    ruta: "/ventas", titulo: "Ventas", menu: "Ventas", icono: "ventas", subetapa: 4,
-    descripcion: "Nueva venta: cliente, sala y vinos, con el total calculado por la base.",
+    ruta: "/ventas", titulo: "Ventas", menu: "Ventas", icono: "ventas",
+    descripcion: "Registro de ventas (cliente, sala y vinos) y consulta de comprobantes por número, con importes calculados por la base.",
+    vista: vistaVentas,
   },
+  // "/ventas/nueva" va antes que "/ventas/:nro" (el enrutador usa la primera que coincide)
+  { ruta: "/ventas/nueva", titulo: "Nueva venta", vista: vistaNuevaVenta },
+  { ruta: "/ventas/:nro", titulo: "Detalle de la venta", vista: vistaDetalleVenta },
   {
     ruta: "/transferencias", titulo: "Transferencias", menu: "Transferencias", icono: "transferencias", subetapa: 5,
     descripcion: "Alta, carga de renglones y cambio de estado de las transferencias del depósito a las salas.",

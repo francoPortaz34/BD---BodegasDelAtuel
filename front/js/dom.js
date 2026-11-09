@@ -44,6 +44,7 @@ const ICONOS = {
   quitar: '<path d="M6 6l12 12M18 6 6 18"/>',
   editar: '<path d="M4 20h4L19 9l-4-4L4 16Z"/><path d="m13.5 6.5 4 4"/>',
   ok: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  buscar: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
 };
 
 export function icono(nombre, clase = "icono") {

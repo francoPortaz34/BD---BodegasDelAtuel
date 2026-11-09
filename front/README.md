@@ -44,9 +44,11 @@ front/
     ├── api/
     │   ├── cliente.js    Cliente HTTP único y ApiError
     │   ├── catalogos.js  Salas, bodegas, cepas y maridajes (con caché en memoria)
-    │   └── vinos.js      GET/POST /vinos, GET/PUT /vinos/{cod}
+    │   ├── vinos.js      GET/POST /vinos, GET/PUT /vinos/{cod}
+    │   ├── ventas.js     POST /comprobantes, GET /comprobantes/{nro}
+    │   └── clientes.js   GET /clientes (búsqueda paginada)
     ├── componentes/      Encabezado, navegación, estados, tarjeta, tabla, paginación, campos y avisos
-    └── vistas/           Inicio, catálogos, catálogo/detalle/alta/edición de vinos, pantallas provisorias
+    └── vistas/           Inicio, catálogos, vinos (catálogo, detalle, alta, edición), ventas, provisorias
 ```
 
 ## Catálogo de vinos (`#/vinos`)
@@ -78,6 +80,21 @@ front/
 - Validación de formato antes de enviar (obligatorios, largos, rangos de los CHECK de `vino`);
   el botón se deshabilita mientras se guarda (sin envíos duplicados). Al guardar se vuelve al
   detalle con un aviso de éxito, conservando la búsqueda del catálogo.
+
+## Ventas (`#/ventas`)
+
+- La API solo permite **registrar** una venta (`POST /comprobantes`) y **consultar** una por su
+  número (`GET /comprobantes/{nro}`): **no existe un listado de comprobantes**. La pantalla ofrece
+  un buscador por número y una lista de las ventas registradas *desde este navegador*
+  (`localStorage`), que **no es el listado completo** de la base.
+- **Nueva venta** (`#/ventas/nueva`): número de comprobante (la API no lo asigna), sala (`GET /salas`),
+  cliente (búsqueda paginada en `GET /clientes` por nombre o documento) y renglones vino + cantidad.
+  Los códigos se eligen de `GET /vinos` (páginas de 100); el `id_vino` de cada vino elegido se
+  obtiene con `GET /vinos/{cod}`. Un vino no se repite en la venta.
+- La fecha, los precios, descuentos, subtotales, totales y el stock los resuelve la base (RN-01,
+  RN-06, RN-08, RN-09); el front no calcula ni decide nada de eso. Si la base rechaza la venta
+  (por ejemplo "Stock insuficiente… (RN-09)"), se muestra su mensaje y no se registra nada.
+- **Detalle** (`#/ventas/{nro}`): datos del comprobante y renglones con los importes de la base.
 
 ## Errores
 

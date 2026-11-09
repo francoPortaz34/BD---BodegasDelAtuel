@@ -1,7 +1,7 @@
 // Vinos (solo lectura en la subetapa 2): GET /vinos y GET /vinos/{cod}.
 // Los filtros y la paginación los resuelve la API; acá solo se arman los
 // parámetros. cliente.js omite los que vienen vacíos.
-import { api } from "./cliente.js";
+import { api, ApiError } from "./cliente.js";
 
 /** Valores del ENUM tipo_vino (db/migrations/001_esquema.sql). La API los espera en minúscula. */
 export const TIPOS_VINO = ["tinto", "blanco", "rosado", "espumante"];
@@ -26,6 +26,32 @@ export function listarVinos({ tipo, cepa, bodega, anada, pagina, tamanio } = {},
  */
 export function obtenerVino(cod, { signal } = {}) {
   return api.get(`/vinos/${encodeURIComponent(cod)}`, { signal });
+}
+
+/**
+ * Todos los vinos (para elegirlos en una venta), recorriendo GET /vinos de a 100
+ * hasta una página incompleta. Se guarda en memoria; forzar = volver a pedir.
+ * GET /vinos no devuelve id_vino: para obtenerlo se usa obtenerVino(cod).
+ */
+let todosLosVinos = null;
+export function obtenerVinosParaSeleccion({ forzar = false } = {}) {
+  if (forzar) todosLosVinos = null;
+  if (!todosLosVinos) {
+    todosLosVinos = (async () => {
+      const vinos = [];
+      for (let pagina = 1; pagina <= 1000; pagina++) {
+        const datos = await listarVinos({ pagina, tamanio: 100 });
+        if (!Array.isArray(datos?.vinos)) throw new ApiError("La API devolvió el listado de vinos con un formato inesperado.", { tipo: "formato" });
+        vinos.push(...datos.vinos);
+        if (datos.vinos.length < 100) break;
+      }
+      return vinos;
+    })().catch((error) => {
+      todosLosVinos = null;   // un fallo no queda en caché: el reintento vuelve a pedir
+      throw error;
+    });
+  }
+  return todosLosVinos;
 }
 
 /** Presentaciones admitidas por la base (CHECK ck_vino_presentacion, 002_constraints.sql). */

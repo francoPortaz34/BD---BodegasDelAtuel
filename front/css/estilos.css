@@ -437,3 +437,44 @@ fieldset:disabled .opcion { cursor: not-allowed; opacity: .7; }
   .corte__campos { grid-template-columns: minmax(0, 1fr) 100px 32px; }
 }
 .boton:disabled .spinner--chico { border-color: var(--bordo-100); border-top-color: var(--bordo-700); }
+
+/* ---------- Ventas ---------- */
+
+.busqueda { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.busqueda .campo { flex: 1 1 220px; }
+.seccion--pie { border-top: 1px solid var(--borde); padding-top: 10px; padding-bottom: 12px; font-size: 13px; }
+
+.buscador { display: flex; flex-direction: column; gap: 10px; }
+.buscador[hidden], .seleccion[hidden] { display: none; }
+.buscador__fila { display: grid; grid-template-columns: 200px minmax(0, 1fr) auto; gap: 10px; }
+.resultados:empty { display: none; }
+.resultados .estado { padding: 16px; }
+.lista-clientes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 8px; }
+.cliente {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 10px 12px;
+  border: 1px solid var(--borde); border-radius: 8px; background: var(--superficie);
+  font: inherit; text-align: left; color: inherit; cursor: pointer;
+}
+.cliente:hover { border-color: var(--bordo-600); background: var(--bordo-100); }
+.cliente__nombre { font-weight: 600; color: var(--bordo-900); }
+.cliente__detalle, .seleccion__detalle { font-size: 13px; color: var(--texto-suave); }
+.buscador .paginacion { margin-top: 0; justify-content: flex-start; }
+.seleccion {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; border: 1px solid var(--bordo-600); border-radius: 8px; background: var(--bordo-100);
+}
+.seleccion__datos { display: flex; flex-direction: column; min-width: 0; }
+.seleccion__titulo { font-weight: 600; color: var(--bordo-900); }
+
+.renglones { display: flex; flex-direction: column; gap: 12px; }
+.renglon__campos { display: grid; grid-template-columns: minmax(0, 1fr) 110px 32px; gap: 10px; align-items: center; }
+.renglon__info { display: block; margin-top: 4px; font-size: 13px; color: var(--texto-suave); }
+.renglon__info:empty, .renglon .campo__error:empty { display: none; }
+.renglon .campo__error { display: block; margin-top: 4px; }
+.renglones__acciones { margin-top: 12px; }
+
+@media (max-width: 820px) {
+  .buscador__fila { grid-template-columns: minmax(0, 1fr) auto; }
+  .buscador__fila select { grid-column: 1 / -1; }
+  .renglon__campos { grid-template-columns: minmax(0, 1fr) 80px 32px; }
+}
