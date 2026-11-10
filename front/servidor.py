@@ -2,7 +2,7 @@
 
 - Sirve los archivos estáticos de esta carpeta.
 - Reenvía las peticiones /api/* a la API REST (proxy), así el navegador habla
-  con un único origen y la API no necesita habilitar CORS.
+con un único origen y la API no necesita habilitar CORS.
 
 Solo usa la biblioteca estándar de Python (no hay que instalar nada).
 

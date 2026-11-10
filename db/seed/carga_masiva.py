@@ -120,14 +120,28 @@ def leer_env():
     return datos
 
 
+
 def conectar():
     env = leer_env()
-    return psycopg.connect(host=env.get("POSTGRES_HOST", "localhost"),
-                           port=env.get("POSTGRES_PORT", "55432"),
-                           dbname=env.get("POSTGRES_DB", "bodegas_atuel"),
-                           user=env.get("POSTGRES_USER", "bodegas_admin"),
-                           password=env.get("POSTGRES_PASSWORD"),
-                           options="-c search_path=bodegas")
+    conn = psycopg.connect(
+        host=env.get("POSTGRES_HOST", "localhost"),
+        port=env.get("POSTGRES_PORT", "55432"),
+        dbname=env.get("POSTGRES_DB", "bodegas_atuel"),
+        user=env.get("POSTGRES_USER", "bodegas_admin"),
+        password=env.get("POSTGRES_PASSWORD"),
+        sslmode=env.get("POSTGRES_SSLMODE", "prefer"),
+        options="-c search_path=bodegas",
+    )
+
+    rol = env.get("POSTGRES_ROLE")
+    if rol:
+        if rol != "bodegas_owner":
+            conn.close()
+            raise ValueError("POSTGRES_ROLE solo admite bodegas_owner")
+        conn.execute("SET ROLE bodegas_owner")
+
+    return conn
+
 
 
 def copiar(cur, tabla, columnas, filas):

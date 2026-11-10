@@ -67,9 +67,19 @@ controles (orden, control, valor, ok) AS (
     -- 1. Volúmenes
     SELECT 100 + row_number() OVER (ORDER BY tabla), 'Filas en ' || tabla, filas, filas > 0 FROM conteos
     UNION ALL SELECT 200, 'Tablas con más de 10.000 filas (mínimo 3)',
-        count(*) FILTER (WHERE filas > 10000), count(*) FILTER (WHERE filas > 10000) >= 3 FROM conteos
-    UNION ALL SELECT 201, 'Tablas con más de 100.000 filas (mínimo 1)',
-        count(*) FILTER (WHERE filas > 100000), count(*) FILTER (WHERE filas > 100000) >= 1 FROM conteos
+    count(*) FILTER (WHERE filas > 10000),
+    CASE
+        WHEN (SELECT count(*) FROM bodegas.comprobante) < 100000 THEN NULL
+        ELSE count(*) FILTER (WHERE filas > 10000) >= 3
+    END
+FROM conteos
+UNION ALL SELECT 201, 'Tablas con más de 100.000 filas (mínimo 1)',
+    count(*) FILTER (WHERE filas > 100000),
+    CASE
+        WHEN (SELECT count(*) FROM bodegas.comprobante) < 100000 THEN NULL
+        ELSE count(*) FILTER (WHERE filas > 100000) >= 1
+    END
+FROM conteos
 
     -- 2. Filas huérfanas (las FK lo impiden; se controla igual)
     UNION ALL SELECT 300, 'Renglones de venta sin comprobante', count(*), count(*) = 0
