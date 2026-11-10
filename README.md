@@ -3,6 +3,20 @@
 Trabajo Práctico Integrador de Bases de Datos (UTN FRSR): sistema de gestión de una
 empresa vitivinícola sobre PostgreSQL 16, con una API REST en FastAPI.
 
+## Sistema publicado (Etapa 8)
+
+| Para qué | Dirección |
+|---|---|
+| **Usar el sistema (navegador)** | **<https://bd-bodegasdelatuel-1.onrender.com>** |
+| API REST | <https://bd-bodegasdelatuel.onrender.com> (Swagger en `/docs`, estado en `/salud`) |
+
+Base de datos en Supabase (PostgreSQL 17.11); API y front en Render (plan gratuito: la primera
+visita después de un rato sin uso puede tardar en responder). Detalles en
+[`docs/etapa8_despliegue.md`](docs/etapa8_despliegue.md) y backup/restauración en
+[`docs/etapa8_backup_restauracion.md`](docs/etapa8_backup_restauracion.md).
+
+Lo que sigue describe el entorno **local** con Docker Compose.
+
 | Carpeta | Contenido |
 |---|---|
 | `db/migrations/` | Esquema, restricciones, funciones, procedimientos, triggers, vistas, roles e índices (001 a 008) |
@@ -11,6 +25,7 @@ empresa vitivinícola sobre PostgreSQL 16, con una API REST en FastAPI.
 | `consultas/` | Consultas SQL de la Etapa 5 |
 | `tests/` | Pruebas SQL de la base (Etapa 2) |
 | `api/` | API REST (Etapa 6) |
+| `front/` | Front web (Etapa 7). Ver [`front/README.md`](front/README.md) |
 | `docs/` | DER, esquema relacional, diccionario de datos e informes de cada etapa |
 
 ## Requisitos
