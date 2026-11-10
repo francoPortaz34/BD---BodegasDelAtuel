@@ -26,7 +26,7 @@ from pathlib import Path
 CARPETA = Path(__file__).resolve().parent
 API_URL = os.environ.get("API_URL", "http://127.0.0.1:8000").rstrip("/")
 HOST = os.environ.get("FRONT_HOST", "127.0.0.1")
-PUERTO = int(os.environ.get("FRONT_PORT", "5173"))
+PUERTO = int(os.environ.get("PORT", os.environ.get("FRONT_PORT", "5173")))
 PREFIJO = "/api"
 
 # Tipos MIME fijos: en Windows el registro puede asociar .js a text/plain y el
