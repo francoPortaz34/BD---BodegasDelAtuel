@@ -14,6 +14,7 @@ pool = ConnectionPool(
         "dbname": os.environ.get("API_DB_NAME", "bodegas_atuel"),
         "user": os.environ.get("API_DB_USER", "bodegas_api"),
         "password": os.environ.get("API_DB_PASSWORD"),
+        "sslmode": os.environ.get("API_DB_SSLMODE", "prefer"),
         "row_factory": dict_row,  # cada fila se devuelve como diccionario {columna: valor}
     },
 )
